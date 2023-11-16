@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "sdk_api_pwm.h": "c",
+        "hw_systick.h": "c"
+    }
+}

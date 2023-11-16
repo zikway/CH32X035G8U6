@@ -54,8 +54,8 @@ int main(void)
     uint32_t value = 0;
     key_pack.pack_head = pack_head1;
     key_pack.type = type1;
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);  //ÖÐ¶ÏµÈ¼¶
-    APP_Board_Init();   //ÅäÖÃ³õÊ¼»¯
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);  //ï¿½Ð¶ÏµÈ¼ï¿½
+    APP_Board_Init();   //ï¿½ï¿½ï¿½Ã³ï¿½Ê¼ï¿½ï¿½
     printf("K001_V01\r\n");
     while(1)
     {
