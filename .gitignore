@@ -79,8 +79,7 @@
 *.iex
 
 # ## Folders
-Project/
-doc/
+
 # user/common/
 #/MDK-ARM/STM3210C
 #/MDK-ARM/DebugConfig
@@ -99,4 +98,3 @@ doc/
 
 obj/
 .settings/
-.cproject
