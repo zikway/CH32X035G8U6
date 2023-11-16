@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "sdk_api_pwm.h": "c",
-        "hw_systick.h": "c"
+        "hw_systick.h": "c",
+        "debug.h": "c",
+        "sdk_api_gpio.h": "c",
+        "ch32x035_gpio.h": "c",
+        "ch32x035.h": "c"
     }
 }

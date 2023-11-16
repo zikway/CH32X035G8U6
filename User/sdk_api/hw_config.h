@@ -77,9 +77,7 @@ ________________________________________________________________________________
     #define SUB_MODE_DEFAULT        0xff            //默认未定义            
     //-------------------------------------------------------
     #if K001
-        #define APP_RGB_ENABLED                     1
         #define APP_KEY_ENABLED                     1
-        #define APP_RGB_NUMS                        1
 
         #define UART_CMD_MAX                        72
         #define UART_LONG_CMD_MAX                   0x220

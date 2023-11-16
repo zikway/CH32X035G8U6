@@ -7,15 +7,15 @@ u16 TxBuf[1024];
 
 void KEY_Init(void)
 {
-        RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-        GPIO_InitTypeDef  GPIO_InitStructure;
-        GPIO_InitStructure.GPIO_Pin = KEY_A_GPIO | KEY_Y_GPIO | KEY_X_GPIO | KEY_M4_GPIO | KEY_R1_GPIO | KEY_START_GPIO | ADC_R2_GPIO;
-        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-        GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-        GPIO_InitStructure.GPIO_Pin = KEY_B_GPIO | KEY_UP_GPIO | KEY_DOWN_GPIO | KEY_LEFT_GPIO | KEY_M1_GPIO | KEY_M2_GPIO | KEY_L1_GPIO | KEY_L3_GPIO | KEY_R3_GPIO | KEY_SELECT_GPIO | KEY_CAPTURE_GPIO;
-        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-        GPIO_Init(GPIOA, &GPIO_InitStructure);
+//        RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
+//        GPIO_InitTypeDef  GPIO_InitStructure;
+//        GPIO_InitStructure.GPIO_Pin = KEY_A_GPIO | KEY_Y_GPIO | KEY_X_GPIO | KEY_M4_GPIO | KEY_R1_GPIO | KEY_START_GPIO | ADC_R2_GPIO;
+//        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+//        GPIO_Init(GPIOB, &GPIO_InitStructure);
+//
+//        GPIO_InitStructure.GPIO_Pin = KEY_B_GPIO | KEY_UP_GPIO | KEY_DOWN_GPIO | KEY_LEFT_GPIO | KEY_M1_GPIO | KEY_M2_GPIO | KEY_L1_GPIO | KEY_L3_GPIO | KEY_R3_GPIO | KEY_SELECT_GPIO | KEY_CAPTURE_GPIO;
+//        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+//        GPIO_Init(GPIOA, &GPIO_InitStructure);
 
 
 }
@@ -27,11 +27,11 @@ void ADC1_Init(void)
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
     GPIO_InitTypeDef  GPIO_InitStructure;
-    GPIO_InitStructure.GPIO_Pin = ADC_R2_GPIO;
+//    GPIO_InitStructure.GPIO_Pin = ADC_R2_GPIO;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-    GPIO_InitStructure.GPIO_Pin = ADC_LX_GPIO | ADC_RX_GPIO | ADC_LY_GPIO | ADC_L2_GPIO | ADC_RY_GPIO;
+    //GPIO_InitStructure.GPIO_Pin = ADC_LX_GPIO | ADC_RX_GPIO | ADC_LY_GPIO | ADC_L2_GPIO | ADC_RY_GPIO;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
     ADC_InitTypeDef ADC_InitStructure;
@@ -67,15 +67,15 @@ void TIM1_Init(void)
 {
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
     TIM_TimeBaseInitTypeDef TIM_TimeBaseInitTypeDef;
-    TIM_TimeBaseInitTypeDef.TIM_Prescaler=48-1;   //Ô¤·ÖÆÁ
-    TIM_TimeBaseInitTypeDef.TIM_CounterMode=TIM_CounterMode_Up;  // ÏòÉÏ¼ÆÊý
-    TIM_TimeBaseInitTypeDef.TIM_Period=1000-1; //ÖØ×°ÔØÖµ
-    TIM_TimeBaseInitTypeDef.TIM_ClockDivision=TIM_CKD_DIV1; //²»·ÖÆÁ
+    TIM_TimeBaseInitTypeDef.TIM_Prescaler=48-1;   //Ô¤ï¿½ï¿½ï¿½ï¿½
+    TIM_TimeBaseInitTypeDef.TIM_CounterMode=TIM_CounterMode_Up;  // ï¿½ï¿½ï¿½Ï¼ï¿½ï¿½ï¿½
+    TIM_TimeBaseInitTypeDef.TIM_Period=1000-1; //ï¿½ï¿½×°ï¿½ï¿½Öµ
+    TIM_TimeBaseInitTypeDef.TIM_ClockDivision=TIM_CKD_DIV1; //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     TIM_TimeBaseStructInit(&TIM_TimeBaseInitTypeDef);
 
-    TIM_UpdateRequestConfig(TIM1,TIM_UpdateSource_Regular);//ÇëÇó¸üÐÂÖÐ¶ÏÔ´
-    TIM_GenerateEvent(TIM1,TIM_EventSource_Update);   //ÈËÎª²úÉú¸üÐÂÊÂ¼þ
-    TIM_ITConfig(TIM1,TIM_IT_Update,ENABLE);              //¸üÐÂÖÐ¶ÏÊ¹ÄÜ
+    TIM_UpdateRequestConfig(TIM1,TIM_UpdateSource_Regular);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½Ô´
+    TIM_GenerateEvent(TIM1,TIM_EventSource_Update);   //ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½
+    TIM_ITConfig(TIM1,TIM_IT_Update,ENABLE);              //ï¿½ï¿½ï¿½ï¿½ï¿½Ð¶ï¿½Ê¹ï¿½ï¿½
 
     NVIC_InitTypeDef NVIC_InitTypeDef;
     NVIC_InitTypeDef.NVIC_IRQChannel=TIM1_UP_IRQn;
@@ -86,7 +86,7 @@ void TIM1_Init(void)
 
 
 
-    TIM_Cmd(TIM1,ENABLE);                       //Ê¹ÄÜTIM1
+    TIM_Cmd(TIM1,ENABLE);                       //Ê¹ï¿½ï¿½TIM1
 
 }
 
@@ -117,12 +117,12 @@ void DMA_Tx_Init(DMA_Channel_TypeDef *DMA_CHx, u32 ppadr, u32 memadr, u16 bufsiz
 void APP_Board_Init(void)
 {
     SystemCoreClockUpdate();
-    KEY_Init();
-    ADC1_Init();
+    // KEY_Init();
+    // ADC1_Init();
     TIM1_Init();
-   // USART_Printf_Init(115200);
-    USART2_Printf_Init(115200);
-    USART3_Printf_Init(115200);
+    USART_Printf_Init(1000000);
+    // USART2_Printf_Init(115200);
+    // USART2_Printf_Init(115200);
    // DMA_Tx_Init(DMA1_Channel1, (u32)&ADC1->RDATAR, (u32)adc_date, 6);
     printf("board Init\n");
 

@@ -32,22 +32,9 @@ ________________________________________________________________________________
 #define INVALID_GPIO	(-1)			//		gpio 31 are not used
 
 #if PROJECT_CJ_GAMEPAD
-    #if C2SL
-    #define KEY_HOME_GPIO           6//S_MGPIO6
-    #define HW_PWM_MAP 	{\
-        {31,   3,  4},\
-    }
-
-    
-    #define HW_ADC_MAP_NUM  2
-
-    //pin, null, channel
-   
-//    #define HW_ADC_MAP      {\
-//        {22         , 0UL, SINGLE_END_AINN4},\
-//        {23         , 0UL, SINGLE_END_AINP4},\
-//    }
-//
+    #if K001
+    #define KEY_A_GPIO           PB_08
+    #define KEY_B_GPIO           PA_11
     
     #endif
 

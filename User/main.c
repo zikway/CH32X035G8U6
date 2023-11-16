@@ -19,7 +19,8 @@
  */
 #include "main.h"
 #include "debug.h"
-
+#include "hw_debug.h"
+#include "gpad.h"
 /* Global define */
 
 /* Global Variable */
@@ -54,24 +55,15 @@ int main(void)
     uint32_t value = 0;
     key_pack.pack_head = pack_head1;
     key_pack.type = type1;
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);  //�жϵȼ�
-    APP_Board_Init();   //���ó�ʼ��
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+    APP_Board_Init();
+    gpad_board_init();
     printf("K001_V01\r\n");
+
     while(1)
     {
-       if(mSysTick-count>8){
-           count = mSysTick;
-           //value = iokey_scan();
-           printf("value=%x\r\n",value);
-           gpad_key.key = value;
-           key_pack.sum = 0x00;
-           key_pack.len = sizeof(gpad_key)+3;
-          // p = key_pack;
-//           _write(2,(char *)p,sizeof(p));
-
-
+        gpad_handle();
     }
-}
 }
 
 void TIM1_UP_IRQHandler(void)

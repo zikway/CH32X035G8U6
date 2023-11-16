@@ -19,7 +19,46 @@ ________________________________________________________________________________
 ************************************************************************************************************/
 #include "sdk_api_gpio.h"
 #include "hw_gpio.h"
+#include "ch32x035_gpio.h"
+#include "hw_debug.h"
+GPIO_TypeDef * get_gpio_port(uint32_t io)
+{
+    GPIO_TypeDef * base;
+    switch (io>>4)
+    {
+    case 0:
+        base = GPIOA;
+    case 1:
+        base = GPIOB;
+    case 2:
+        base = GPIOC;
+    default:
+        break;
+    }
+    return base;
+}
 
+uint32_t get_gpio_rcc(uint32_t io)
+{
+    uint32_t rcc;
+    switch (io>>4)
+    {
+    case 0:
+        rcc = RCC_APB2Periph_GPIOA;
+    case 1:
+        rcc = RCC_APB2Periph_GPIOB;
+    case 2:
+        rcc = RCC_APB2Periph_GPIOC;
+    default:
+        break;
+    }
+    return rcc;
+}
+
+uint32_t get_gpio_pin(uint32_t io)
+{
+    return io&0x0f;
+}
 /**
  * \brief Function for initializing the FIFO.
  *
@@ -41,46 +80,52 @@ ________________________________________________________________________________
  */
 void sdk_api_gpio_cfg_input(uint32_t io, uint8_t pull_config)
 {
-    uint8_t pull;
     if((uint32_t)-1 == io) return;
+    GPIO_TypeDef * gpiox = get_gpio_port(io);
 
-    // uapi_pin_set_mode(io, HAL_PIO_FUNC_GPIO);
+    //config io as gpio input
+    GPIO_InitTypeDef GPIO_InitStructure = {0};
+    RCC_APB2PeriphClockCmd(get_gpio_rcc(io), ENABLE);
 
-    // gpio_select_core(io, CORES_APPS_CORE);
-
-    // uapi_gpio_set_dir(io, GPIO_DIRECTION_INPUT);
-
-    // if(pull_config == HW_GPIO_PIN_PULLDOWN){
-    //     pull = PIN_PULL_DOWN;
-    // }else if(pull_config == HW_GPIO_PIN_PULLUP){
-    //     pull = PIN_PULL_UP;
-    // }else{
-    //     pull = PIN_PULL_NONE;
-    // }
-    // uapi_pin_set_pull(io, pull);
+    GPIO_InitStructure.GPIO_Pin = get_gpio_pin(io);
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    
+    if(pull_config == HW_GPIO_PIN_PULLDOWN){
+        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPD;
+    }else if(pull_config == HW_GPIO_PIN_PULLUP){
+        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+    }else{
+        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    }
+    GPIO_Init(gpiox, &GPIO_InitStructure);
 }
 
 
 uint32_t sdk_api_gpio_input(uint32_t io)
 {
-    return 1;
+    return GPIO_ReadInputDataBit(get_gpio_port(io), get_gpio_pin(io));
 }
 
 
 void sdk_api_gpio_cfg_output(uint32_t io)
 {
     if((uint32_t)-1 == io) return;
-    // uapi_pin_set_mode(io, HAL_PIO_FUNC_GPIO);
-    // uapi_gpio_set_dir(io, GPIO_DIRECTION_OUTPUT);
-    // uapi_gpio_set_val(io, GPIO_LEVEL_LOW);
+    if((uint32_t)-1 == io) return;
+    GPIO_TypeDef * gpiox = get_gpio_port(io);
+
+    //config io as gpio input
+    GPIO_InitTypeDef GPIO_InitStructure = {0};
+    RCC_APB2PeriphClockCmd(get_gpio_rcc(io), ENABLE);
+
+    GPIO_InitStructure.GPIO_Pin = get_gpio_pin(io);
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(gpiox, &GPIO_InitStructure);
 }
 
 void sdk_api_gpio_output(uint32_t io,uint8_t val)
 {
-    // if(val)
-    // uapi_gpio_set_val(io, GPIO_LEVEL_HIGH);
-    // else
-    // uapi_gpio_set_val(io, GPIO_LEVEL_LOW);
+    GPIO_WriteBit(get_gpio_port(io), get_gpio_pin(io), val);
 }
 
 void sdk_api_gpio_cfg_mode(uint32_t io,uint8_t mode)
