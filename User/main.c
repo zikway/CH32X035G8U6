@@ -57,8 +57,8 @@ int main(void)
     key_pack.type = type1;
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
     APP_Board_Init();
+    logd_b("MODEL, VERSION:%s,V%x\n",DEFAULT_MODEL,SW_VERSION);
     gpad_board_init();
-    printf("K001_V01\r\n");
 
     while(1)
     {
