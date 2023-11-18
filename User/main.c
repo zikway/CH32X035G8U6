@@ -35,12 +35,57 @@
 #define pack_head1      0x05
 #define type1           0x02
 volatile uint32_t mSysTick;   //1ms
-key_t_pack key_pack;
-key_t_pack *p;
-gamepad_key_t gpad_key;
-uint16_t adc_date[6]={0};
-extern u16 TxBuf[1024];
 
+
+void TIM1_Init(void)
+{
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+    TIM_TimeBaseInitTypeDef TIM_TimeBaseInitTypeDef;
+    TIM_TimeBaseInitTypeDef.TIM_Prescaler=48-1;   //Ԥ����
+    TIM_TimeBaseInitTypeDef.TIM_CounterMode=TIM_CounterMode_Up;  // ���ϼ���
+    TIM_TimeBaseInitTypeDef.TIM_Period=1000-1; //��װ��ֵ
+    TIM_TimeBaseInitTypeDef.TIM_ClockDivision=TIM_CKD_DIV1; //������
+    TIM_TimeBaseStructInit(&TIM_TimeBaseInitTypeDef);
+
+    TIM_UpdateRequestConfig(TIM1,TIM_UpdateSource_Regular);//��������ж�Դ
+    TIM_GenerateEvent(TIM1,TIM_EventSource_Update);   //��Ϊ���������¼�
+    TIM_ITConfig(TIM1,TIM_IT_Update,ENABLE);              //�����ж�ʹ��
+
+    NVIC_InitTypeDef NVIC_InitTypeDef;
+    NVIC_InitTypeDef.NVIC_IRQChannel=TIM1_UP_IRQn;
+    NVIC_InitTypeDef.NVIC_IRQChannelCmd=ENABLE;
+    NVIC_InitTypeDef.NVIC_IRQChannelPreemptionPriority=1;
+    NVIC_InitTypeDef.NVIC_IRQChannelSubPriority=1;
+    NVIC_Init(&NVIC_InitTypeDef);
+
+
+
+    TIM_Cmd(TIM1,ENABLE);                       //ʹ��TIM1
+
+}
+
+
+void DMA_Tx_Init(DMA_Channel_TypeDef *DMA_CHx, u32 ppadr, u32 memadr, u16 bufsize)
+{
+    DMA_InitTypeDef DMA_InitStructure = {0};
+
+    RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+
+    DMA_DeInit(DMA_CHx);
+    DMA_InitStructure.DMA_PeripheralBaseAddr = ppadr;
+    DMA_InitStructure.DMA_MemoryBaseAddr = memadr;
+    DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;
+    DMA_InitStructure.DMA_BufferSize = bufsize;
+    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;
+    DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;
+    DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;
+    DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
+    DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+    DMA_Init(DMA_CHx, &DMA_InitStructure);
+    DMA_Cmd(DMA1_Channel1, ENABLE);
+}
 
 /*********************************************************************
  * @fn      main
@@ -51,18 +96,21 @@ extern u16 TxBuf[1024];
  */
 int main(void)
 {
-    uint32_t count = 0;
-    uint32_t value = 0;
-    key_pack.pack_head = pack_head1;
-    key_pack.type = type1;
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-    APP_Board_Init();
+    SystemCoreClockUpdate();
+    TIM1_Init();
+    USART_Printf_Init(1000000);
+
     logd_b("MODEL, VERSION:%s,V%x\n",DEFAULT_MODEL,SW_VERSION);
     gpad_board_init();
     gpad_init();
     while(1)
     {
-        gpad_handle();
+        static uint32_t s_time = 0;
+        if(mSysTick - s_time > 4){
+            s_time = mSysTick;
+            gpad_handle();
+        }
     }
 }
 
@@ -71,50 +119,6 @@ void TIM1_UP_IRQHandler(void)
 
     if((TIM_GetFlagStatus(TIM1,TIM_FLAG_Update))){
         TIM_ClearFlag(TIM1,TIM_FLAG_Update);
-        ADC_SoftwareStartConvCmd(ADC1,ENABLE);
-        gpad_key.rx=adc_date[0];
-        gpad_key.lx=adc_date[1];
-        gpad_key.ly=adc_date[2];
-        gpad_key.ry=adc_date[3];
-        gpad_key.l2=adc_date[4];
-        gpad_key.r2=adc_date[5];
-       // printf("adc_date[%d]=%d\r\n",adc_date[0]);
         mSysTick++;
     }
 }
-
-//void ADC1_IRQHandler(void)
-//{
-//    uint8_t adc_flag=0;
-//    if(ADC_GetFlagStatus(ADC1,ADC_FLAG_EOC)){
-//        ADC_ClearFlag(ADC1,ADC_FLAG_EOC);
-//        adc_flag++;
-//        if(adc_flag==1){
-//            adc_date[0]=ADC_GetConversionValue(ADC1);
-//        }
-//        if(adc_flag==2){
-//            adc_date[1]=ADC_GetConversionValue(ADC1);
-//                }
-//        if(adc_flag==3){
-//            adc_date[2]=ADC_GetConversionValue(ADC1);
-//                }
-//        if(adc_flag==4){
-//            adc_date[3]=ADC_GetConversionValue(ADC1);
-//                }
-//        if(adc_flag==5){
-//            adc_date[4]=ADC_GetConversionValue(ADC1);
-//                }
-//        if(adc_flag==6){
-//            adc_date[5]=ADC_GetConversionValue(ADC1);
-//            adc_flag=0;
-//                }
-//
-//
-//    }
-
-
-
-
-
-
-//}

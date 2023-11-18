@@ -19,8 +19,8 @@ ________________________________________________________________________________
 ************************************************************************************************************/
 #include "sdk_api_gpio.h"
 #include "hw_gpio.h"
-#include "ch32x035_gpio.h"
 #include "hw_debug.h"
+#include "debug.h"
 GPIO_TypeDef * get_gpio_port(pin_t io)
 {
     GPIO_TypeDef * base;

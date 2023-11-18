@@ -11,6 +11,9 @@
 #include "hw_gpio.h"
 
 #define CC1_5_1K_PULLDOWN   PC_07   //高电平 -> 拉低5.1K，此表示取电
+#define PHONE       6 //手機電源VBUS
+#define CHARGER     7 //充電器電源VIN
+
 void key_analyse(void)
 {
     if(key_pressed & HW_KEY_A)
@@ -90,8 +93,8 @@ void power_manager_handle(void)
     static uint32_t t = 0;
     if(mSysTick -t > 20)
     {
-        // m_adc_data[phone_power] = hw_adc_value(ADC_BATTERY_ID);
-        logi("input: %d\n", hw_gpio_input(CC1_5_1K_PULLDOWN));
+        // m_adc_data[CHARGER] = hw_adc_value(ADC_BATTERY_ID);
+        // logi("input: %d\n", hw_gpio_input(CC1_5_1K_PULLDOWN));
     }
 }
 

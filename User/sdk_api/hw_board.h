@@ -43,6 +43,26 @@ ________________________________________________________________________________
     #define KEY_CAPTURE_GPIO           PA_15         //LS
     #define KEY_L2_GPIO           PA_18         //LB
     #define KEY_LEFT_GPIO           PA_20         //LEFT
+
+    #define HW_ADC_MAP_NUM  8
+    //PA_00 lx,
+    //PA_01 ly,
+    //PA_05 rx,
+    //PA_06 ry,
+    //PA_04 lt,
+    //PA_09 rt,
+    //PB_00 手機電源VBUS
+    //PA_07 充電器電源VIN,
+    #define HW_ADC_MAP      {\
+        {PA_00, 0UL, 0},\
+        {PA_01, 0UL, 1},\
+        {PA_05, 0UL, 5},\
+        {PA_06, 0UL, 6},\
+        {PA_04, 0UL, 4},\
+        {PA_09, 0UL, 9},\
+        {PB_00, 0UL, 8},\
+        {PA_07, 0UL, 7},\
+        }  
     
     #endif
 
