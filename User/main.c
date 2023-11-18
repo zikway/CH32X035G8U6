@@ -59,7 +59,7 @@ int main(void)
     APP_Board_Init();
     logd_b("MODEL, VERSION:%s,V%x\n",DEFAULT_MODEL,SW_VERSION);
     gpad_board_init();
-
+    gpad_init();
     while(1)
     {
         gpad_handle();

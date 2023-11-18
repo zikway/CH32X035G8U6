@@ -8,7 +8,9 @@
 #include "gamepad_setting.h"
 #include "gamepad_sensor.h"
 #include "hw_adc.h"
+#include "hw_gpio.h"
 
+#define CC1_5_1K_PULLDOWN   PC_07   //高电平 -> 拉低5.1K，此表示取电
 void key_analyse(void)
 {
     if(key_pressed & HW_KEY_A)
@@ -18,6 +20,18 @@ void key_analyse(void)
     if(key_pressed & HW_KEY_B)
     {
         logi("key b pressed\n");
+    }
+    if(key_pressed & HW_KEY_R1)
+    {
+        logi("key R1 pressed\n");
+        hw_gpio_output(CC1_5_1K_PULLDOWN, !hw_gpio_input(CC1_5_1K_PULLDOWN));
+        logi("input: %d", hw_gpio_input(CC1_5_1K_PULLDOWN));
+    }
+    if(key_pressed & 0X100)
+    {
+        logi("key R1 pressed\n");
+        hw_gpio_output(CC1_5_1K_PULLDOWN, !hw_gpio_input(CC1_5_1K_PULLDOWN));
+        logi("input: %d", hw_gpio_input(CC1_5_1K_PULLDOWN));
     }
 }
 
@@ -41,7 +55,9 @@ void user_vender_init(void)//weak      2
 
 void hw_user_vender_init(void)
 {
-
+    //默认从手机端获取电量
+    hw_gpio_cfg_output(CC1_5_1K_PULLDOWN);
+    hw_gpio_output(CC1_5_1K_PULLDOWN, 1);
 }
 void hw_user_vender_deinit(void)
 {
@@ -53,10 +69,31 @@ void hw_user_vender_deinit(void)
  */
 void user_task_handle(void)
 {
-
+    static uint32_t t = 0;
+    if(mSysTick -t > 1000)
+    {
+        t = mSysTick;
+        logi("input: %d\n", hw_gpio_input(CC1_5_1K_PULLDOWN));
+    }
 }
 
 
+void power_manager_init(void)
+{
+    logi("%s\n",__func__);
+    //check 
+}
+
+void power_manager_handle(void)
+{
+    logi("%s\n",__func__);
+    static uint32_t t = 0;
+    if(mSysTick -t > 20)
+    {
+        // m_adc_data[phone_power] = hw_adc_value(ADC_BATTERY_ID);
+        logi("input: %d\n", hw_gpio_input(CC1_5_1K_PULLDOWN));
+    }
+}
 
 
 #endif

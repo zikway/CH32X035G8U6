@@ -34,7 +34,15 @@ ________________________________________________________________________________
 #if PROJECT_CJ_GAMEPAD
     #if K001
     #define KEY_A_GPIO           PB_08
+    #define KEY_SELECT_GPIO           PB_09      //MENU
+    #define KEY_START_GPIO           PB_10  //turbo
+    #define KEY_R1_GPIO           PB_11     //RB
+    #define KEY_M2_GPIO           PA_10      //M2
     #define KEY_B_GPIO           PA_11
+    #define KEY_M1_GPIO           PA_12         //M1
+    #define KEY_CAPTURE_GPIO           PA_15         //LS
+    #define KEY_L2_GPIO           PA_18         //LB
+    #define KEY_LEFT_GPIO           PA_20         //LEFT
     
     #endif
 
