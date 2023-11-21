@@ -23,7 +23,7 @@ extern "C" {
 
 /* Standard Peripheral Library version number */
 #define __STDPERIPH_VERSION_MAIN   (0x01) /* [15:8] main version */
-#define __STDPERIPH_VERSION_SUB    (0x02) /* [7:0] sub version */
+#define __STDPERIPH_VERSION_SUB    (0x04) /* [7:0] sub version */
 #define __STDPERIPH_VERSION        ((__STDPERIPH_VERSION_MAIN << 8)\
                                     |(__STDPERIPH_VERSION_SUB << 0))
 
@@ -305,14 +305,42 @@ typedef struct
     uint16_t      RESERVED11;
     __IO uint16_t RPTCR;
     uint16_t      RESERVED12;
-    __IO uint16_t CH1CVR;
-    uint16_t      RESERVED13;
-    __IO uint16_t CH2CVR;
-    uint16_t      RESERVED14;
-    __IO uint16_t CH3CVR;
-    uint16_t      RESERVED15;
-    __IO uint16_t CH4CVR;
-    uint16_t      RESERVED16;
+    union
+    {
+        __IO uint32_t CH1CVR_R32;
+        struct
+        {
+            __IO uint16_t CH1CVR;
+            uint16_t      RESERVED13;
+        };
+    };
+    union
+    {
+        __IO uint32_t CH2CVR__R32;
+        struct
+        {
+            __IO uint16_t CH2CVR;
+            uint16_t      RESERVED14;
+        };
+    };
+    union
+    {
+        __IO uint32_t CH3CVR__R32;
+        struct
+        {
+            __IO uint16_t CH3CVR;
+            uint16_t      RESERVED15;
+        };
+    };
+    union
+    {
+        __IO uint32_t CH4CVR__R32;
+        struct
+        {
+            __IO uint16_t CH4CVR;
+            uint16_t      RESERVED16;
+        };
+    };
     __IO uint16_t BDTR;
     uint16_t      RESERVED17;
     __IO uint16_t DMACFGR;

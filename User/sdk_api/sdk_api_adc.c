@@ -104,7 +104,5 @@ bool sdk_api_adc_init(const pin_map_t* p_map,uint8_t count)
 
 bool sdk_api_adc_deinit(const pin_map_t* p_map, uint8_t count)
 {
-    p_map = p_map;
-    count = count;
     return true;
 }

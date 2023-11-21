@@ -140,12 +140,17 @@ FlagStatus PWR_GetFlagStatus(uint32_t PWR_FLAG)
  */
 PWR_VDD PWR_VDD_SupplyVoltage(void)
 {
-    PWR_VDD VDD_Voltage = PWR_VDD_5V;
 
-    if((*((uint32_t*)0x08000014)) == 0x0057FFFF)
+    PWR_VDD VDD_Voltage = PWR_VDD_3V3;
+    Delay_Init();
+    RCC_APB1PeriphClockCmd( RCC_APB1Periph_PWR, ENABLE);
+    PWR_PVDLevelConfig(PWR_PVDLevel_4V0);
+    Delay_Us(10);
+    if( PWR_GetFlagStatus(PWR_FLAG_PVDO) == (uint32_t)RESET)
     {
-        VDD_Voltage = PWR_VDD_3V3;
+        VDD_Voltage = PWR_VDD_5V;
     }
+    PWR_PVDLevelConfig(PWR_PVDLevel_2V1);
 
     return VDD_Voltage;
 }
