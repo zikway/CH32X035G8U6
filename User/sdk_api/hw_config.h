@@ -83,6 +83,9 @@ ________________________________________________________________________________
         #define UART_LONG_CMD_MAX                   0x220
         #define UART_RX_BUFF_LEN                    UART_LONG_CMD_MAX
 
+        #define APP_RGB_ENABLED                     1
+        #define APP_RGB_NUMS                        1
+        
         #define DEFAULT_MODEL						"ZJ-K001"
         #define DEFAULT_NAME			            "K001"
         #define SW_VERSION                          0x01

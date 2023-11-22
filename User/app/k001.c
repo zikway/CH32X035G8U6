@@ -10,6 +10,9 @@
 #include "hw_adc.h"
 #include "hw_gpio.h"
 #include "PD_Process.h"
+#include "app_rgb.h"
+#include "RGB1W.h"
+#include "debug.h"
 
 #define PHONE       6 //手機電源VBUS
 #define CHARGER     7 //充電器電源VIN
@@ -62,6 +65,57 @@ void power_manager_handle(void)
     }
 }
 
+#if APP_RGB_ENABLED
+
+#define F_CPU       HSI_VALUE
+void ex_app_rgb_init(void)
+{
+    // GPIO_InitTypeDef GPIO_InitStructure = {0};
+    // RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOC, ENABLE);
+    // RCC_AHBPeriphClockCmd(RCC_AHBPeriph_IO2W, ENABLE);
+
+    // GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE);
+    // GPIO_SetBits(GPIOC, GPIO_Pin_18);
+
+    // GPIO_InitStructure.GPIO_Pin = GPIO_Pin_18;
+    // GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+    // GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    // GPIO_Init(GPIOC, &GPIO_InitStructure);
+
+	// PIOC->D8_SYS_CFG = RB_MST_RESET | RB_MST_IO_EN0;	// reset PIOC & enable IO0
+	// memcpy( (uint8_t *)(PIOC_SRAM_BASE), PIOC_1W_CODE, sizeof( PIOC_1W_CODE )/ sizeof(PIOC_1W_CODE[0]));	// load code for PIOC
+}
+
+bool ex_app_rgb_show(uint8_t *frame)
+{
+	static uint8_t s_frame[APP_RGB_NUMS*3];
+	uint8_t grb[APP_RGB_NUMS*3];
+    uint32_t i;
+    uint8_t brightness;
+
+	if(0 == memcmp(s_frame,frame,APP_RGB_NUMS*3)) return true;
+	memcpy(s_frame,frame,APP_RGB_NUMS*3);
+	memcpy(grb,frame,APP_RGB_NUMS*3);
+
+	for (i = 0; i < APP_RGB_NUMS*3; i+=3){
+		brightness = grb[i+1];
+		grb[i+1] = grb[i];
+		grb[i] = brightness;
+	}
+
+    if(APP_RGB_NUMS*3 > 32){
+        RGB1W_SendRAM_Wait(APP_RGB_NUMS*3, grb);
+    }else{
+        RGB1W_SendSFR_Wait(APP_RGB_NUMS*3, grb);
+    }
+    return true;
+}
+
+void ex_app_rgb_deinit(void)
+{
+}
+#endif
+
 void key_analyse(void)
 {
     if(key_pressed & HW_KEY_A)
@@ -93,6 +147,7 @@ bool zkm_vendor_device_decode(tTrp_handle* cmd_tr,uint8_t *pDat,uint16_t len)
 void user_vender_init(void)//weak      2
 {
     logi("%s\n",__func__);
+    app_rgb_blink(0, 1000, RGB_FOREVER, WHITE);
 }
 
 
