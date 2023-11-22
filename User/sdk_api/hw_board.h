@@ -33,16 +33,32 @@ ________________________________________________________________________________
 
 #if PROJECT_CJ_GAMEPAD
     #if K001
-    #define KEY_A_GPIO           PB_08
-    #define KEY_SELECT_GPIO           PB_09      //MENU
-    #define KEY_START_GPIO           PB_10  //turbo
-    #define KEY_R1_GPIO           PB_11     //RB
-    #define KEY_M2_GPIO           PA_10      //M2
-    #define KEY_B_GPIO           PA_11
-    #define KEY_M1_GPIO           PA_12         //M1
-    #define KEY_CAPTURE_GPIO           PA_15         //LS
-    #define KEY_L2_GPIO           PA_18         //LB
-    #define KEY_LEFT_GPIO           PA_20         //LEFT
+        #define USER_DEBUG_PIN              PB_03
+        #define UART_BOARDATE               1000000
+
+        #define TR_UART2_TX_PIN              PA_02
+        #define TR_UART2_RX_PIN              PA_03
+
+        #define KEY_A_GPIO                  PB_08
+        #define KEY_B_GPIO                  PA_11
+        #define KEY_Y_GPIO                  PB_06
+        #define KEY_X_GPIO                  PB_02
+
+        #define KEY_UP_GPIO                 PA_23
+        #define KEY_DOWN_GPIO               PA_22
+        #define KEY_LEFT_GPIO               PA_20
+        #define KEY_RIGHT_GPIO              PC_06
+
+        #define KEY_M1_GPIO                 PA_12
+        #define KEY_M2_GPIO                 PA_10
+        #define KEY_L1_GPIO                 PA_18     //LB
+        #define KEY_M4_GPIO                 PB_10     //TURBO
+        #define KEY_L3_GPIO                 PA_15     //L3
+        #define KEY_R3_GPIO                 PA_09     //R3
+        #define KEY_R1_GPIO                 PB_11     //RB
+        #define KEY_START_GPIO               PB_09     //菜单键
+        #define KEY_CAPTURE_GPIO            PA_19     //截图
+        #define KEY_SELECT_GPIO             PA_17     //视窗
 
     #define HW_ADC_MAP_NUM  8
     //PA_00 lx,
@@ -76,6 +92,9 @@ ________________________________________________________________________________
     #define SET_IIC_SCL_LOW             GPIOA->BCR |= 1<<13;
     #define GET_IIC_SDA_DATA            (GPIOA->INDR & (1<<14))
     
+    //  #define HW_PWM_MAP {\
+	// 		{IO_PORTB_03, NULL,1},\
+	// 	}
     #endif
 
     #ifndef STORE_STRUCT_DEF

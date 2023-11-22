@@ -140,7 +140,16 @@ bool zkm_vendor_host_decode(tTrp_handle* cmd_tr,uint8_t *buf,uint16_t len)
 }
 bool zkm_vendor_device_decode(tTrp_handle* cmd_tr,uint8_t *pDat,uint16_t len)
 { 
-    return false;
+      bool ret = false;
+ logd("zkm_decode_h:");dumpd(pDat,len);
+    switch (pDat[2]){
+    case CMD_ROCKER_EVE:
+      // logd_r("11111");
+        ret = true;
+        break; 
+    }
+	return ret;
+
 }
 
 
@@ -164,6 +173,14 @@ void hw_user_vender_deinit(void)
 void user_task_handle(void)
 {
     static uint32_t t = 0;
+    uint8_t w_len=5;
+    gamepad_key_t gpad_key;
+    //app_fifo_write(&m_uart_rx_fifo,test_buf,&w_len);
+    //logd("222=%x\n",(uint8_t)USART_ReceiveData(USART2));
+    // if(usart_flag){
+    //     usart_flag =false;
+    //  app_fifo_write(&m_uart_rx_fifo,test_buf,&w_len);
+    // }
     if(mSysTick -t > 1000)
     {
         t = mSysTick;

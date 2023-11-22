@@ -82,6 +82,7 @@ ________________________________________________________________________________
         #define UART_CMD_MAX                        72
         #define UART_LONG_CMD_MAX                   0x220
         #define UART_RX_BUFF_LEN                    UART_LONG_CMD_MAX
+        #define ZKM_VERDOR_ENABLED                      1
 
         #define APP_RGB_ENABLED                     1
         #define APP_RGB_NUMS                        1
