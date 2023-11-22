@@ -85,7 +85,9 @@ ________________________________________________________________________________
 
         #define APP_RGB_ENABLED                     1
         #define APP_RGB_NUMS                        1
-        
+        #define BREATH_TRIANGLE
+        #define HW_IIC_ENABLED                      1
+        #define  IIC_DELAY                          delay_ms(1) //默认IIC为400KHZ
         #define DEFAULT_MODEL						"ZJ-K001"
         #define DEFAULT_NAME			            "K001"
         #define SW_VERSION                          0x01

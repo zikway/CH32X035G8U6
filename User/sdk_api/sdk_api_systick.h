@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "sdk_typedef.h"
+#include "debug.h"
 
 typedef uint32_t  timer_t;		//uint32_t
 

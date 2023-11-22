@@ -92,7 +92,7 @@ bool ex_app_rgb_show(uint8_t *frame)
 	uint8_t grb[APP_RGB_NUMS*3];
     uint32_t i;
     uint8_t brightness;
-
+    return true;// todo
 	if(0 == memcmp(s_frame,frame,APP_RGB_NUMS*3)) return true;
 	memcpy(s_frame,frame,APP_RGB_NUMS*3);
 	memcpy(grb,frame,APP_RGB_NUMS*3);
@@ -167,7 +167,7 @@ void user_task_handle(void)
     if(mSysTick -t > 1000)
     {
         t = mSysTick;
-        // logi("input: %d\n", CHARGER_DET());
+        logi("input: %d\n", CHARGER_DET());
     }
     power_manager_handle();
 }

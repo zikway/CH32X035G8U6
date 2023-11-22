@@ -62,7 +62,19 @@ ________________________________________________________________________________
         {PA_09, 0UL, 9},\
         {PB_00, 0UL, 8},\
         {PA_07, 0UL, 7},\
-        }  
+        }
+    #define IIC_GPIO_SDA_PIN_PORT       PA_14
+    #define IIC_GPIO_SCK_PIN_PORT       PA_13
+
+
+    #define SET_IIC_SDA_DIR_IN          GPIOA->CFGHR = GPIOA->CFGHR &(~0XF000000) | 0b1000<<((14-8)*4); GPIOA->BSHR |= 1<<14;
+    #define SET_IIC_SDA_DIR_OUT         GPIOA->CFGHR = GPIOA->CFGHR &(~0XF000000) | 0b0010<<((14-8)*4);
+
+    #define SET_IIC_SDA_HIGH            GPIOA->BSHR |= 1<<14;
+    #define SET_IIC_SDA_LOW             GPIOA->BCR |= 1<<14;
+    #define SET_IIC_SCL_HIGH            GPIOA->BSHR |= 1<<13;
+    #define SET_IIC_SCL_LOW             GPIOA->BCR |= 1<<13;
+    #define GET_IIC_SDA_DATA            (GPIOA->INDR & (1<<14))
     
     #endif
 
