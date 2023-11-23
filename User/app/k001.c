@@ -13,6 +13,7 @@
 #include "app_rgb.h"
 #include "RGB1W.h"
 #include "debug.h"
+#include "app_joystick.h"
 
 #define PHONE       6 //手機電源VBUS
 #define CHARGER     7 //充電器電源VIN
@@ -136,6 +137,16 @@ void key_analyse(void)
     {
         logi("key a pressed\n");
     }
+
+    if (JOYSTICK_CAl_END_KEY == (JOYSTICK_CAl_END_KEY & key_press_long)){
+        key_single_event_send(KEY_EVT_CALIBRATION, true);
+    }else{
+        key_single_event_send(KEY_EVT_CALIBRATION, false);
+    }
+    if ((JOYSTICK_CAl_END_KEY & key_pressed_b)){
+        app_joystick_calibration_end();
+    }
+    
     if(key_pressed & HW_KEY_B)
     {
         logi("key b pressed\n");
@@ -198,7 +209,9 @@ void user_task_handle(void)
     if(mSysTick -t > 1000)
     {
         t = mSysTick;
-        logi("input: %d\n", CHARGER_DET());
+        logi("key:%x, lx:%d, ly:%d, rx:%d, ry:%d, lt:%d, rt:%d, %d, %d, %d, %d, %d, %d\n" \
+        ,m_gpad_key.key,m_gpad_key.lx,m_gpad_key.ly,m_gpad_key.rx,m_gpad_key.ry,        \
+        m_gpad_key.l2,m_gpad_key.r2, m_gpad_key.acc.x, m_gpad_key.acc.y, m_gpad_key.acc.z, m_gpad_key.gyro.x, m_gpad_key.gyro.y, m_gpad_key.gyro.z);
     }
     power_manager_handle();
 }

@@ -87,8 +87,22 @@ ________________________________________________________________________________
         #define APP_RGB_ENABLED                     1
         #define APP_RGB_NUMS                        1
         #define BREATH_TRIANGLE
-        #define HW_IIC_ENABLED                      1
-        #define  IIC_DELAY                          delay_ms(1) //默认IIC为400KHZ
+        // #define HW_IIC_ENABLED                      1
+        // #define  IIC_DELAY                          __NOP();//默认IIC为400KHZ
+        // #define APP_IMU_ENABLED                     1
+        // #define HW_QMI8658_ENABLE
+        //遥杆
+        #define APP_JOYSTICK_ENABLED                1  // 总开关宏
+        #define APP_JOYSTICK_DIR                    {false,false, true, true} // 两个值分别表示 X 与 Y . ture 表示 AD 值从小到大
+        //扳机
+        #define APP_TRIGGER_ENABLED                 1
+        #define APP_TRIGGER_DEADZONE                15
+        #define ADC_FITER_MIN                       (2)
+        #define APP_TRIGGER_MIN_R                   (250)
+        #define APP_TRIGGER_DEADZONE                15
+        #define JOYSTICK_CAl_END_KEY                (HW_KEY_CAPTURE | HW_KEY_SELECT)
+        #define APP_JOYSTICK_ADC_MAX                4096
+
         #define DEFAULT_MODEL						"ZJ-K001"
         #define DEFAULT_NAME			            "K001"
         #define SW_VERSION                          0x01

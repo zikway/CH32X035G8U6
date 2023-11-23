@@ -44,7 +44,7 @@ void TIM1_Init(void)
     TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure={0};
     NVIC_InitTypeDef NVIC_InitStructure={0};
     RCC_APB2PeriphClockCmd( RCC_APB2Periph_TIM1, ENABLE );
-    TIM_TimeBaseInitStructure.TIM_Period = 999;
+    TIM_TimeBaseInitStructure.TIM_Period = 10-1;
     TIM_TimeBaseInitStructure.TIM_Prescaler = 48-1;
     TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
     TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -106,12 +106,8 @@ int main(void)
     PD_Init();
     while(1)
     {
-        static uint32_t s_time = 0;
         static uint8_t charging_pre = -1;
-        if(mSysTick - s_time > 4){
-            s_time = mSysTick;
-            gpad_handle();
-        }
+        gpad_handle();
 
         if(charging_pre != charger_in){
             charging_pre = charger_in;
@@ -152,8 +148,13 @@ void TIM1_UP_IRQHandler(void)
 {
     if( TIM_GetITStatus( TIM1, TIM_IT_Update ) != RESET )
     {
-        mSysTick++;
-        Tim_Ms_Cnt++;
+        static uint32_t tmp = 0;
+
+        if(++m_task_tick10us - tmp >= 100){
+            tmp = m_task_tick10us;
+            mSysTick++;
+            Tim_Ms_Cnt++;
+        }
         TIM_ClearITPendingBit( TIM1, TIM_IT_Update );
     }
 }

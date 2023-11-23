@@ -60,41 +60,50 @@ ________________________________________________________________________________
         #define KEY_CAPTURE_GPIO            PA_19     //截图
         #define KEY_SELECT_GPIO             PA_17     //视窗
 
-    #define HW_ADC_MAP_NUM  8
-    //PA_00 lx,
-    //PA_01 ly,
-    //PA_05 rx,
-    //PA_06 ry,
-    //PA_04 lt,
-    //PB_01 rt,
-    //PB_00 手機電源VBUS
-    //PA_07 充電器電源VIN,
-    #define HW_ADC_MAP      {\
-        {PA_00, 0UL, 0},\
-        {PA_01, 0UL, 1},\
-        {PA_05, 0UL, 5},\
-        {PA_06, 0UL, 6},\
-        {PA_04, 0UL, 4},\
-        {PB_01, 0UL, 9},\
-        {PB_00, 0UL, 8},\
-        {PA_07, 0UL, 7},\
-        }
-    #define IIC_GPIO_SDA_PIN_PORT       PA_14
-    #define IIC_GPIO_SCK_PIN_PORT       PA_13
+        #define HW_ADC_MAP_NUM  8
+        //lx,
+        //ly,
+        //rx,
+        //ry,
+        //lt,
+        //rt,
+        //手機電源VBUS
+        //充電器電源VIN,
+        #define HW_ADC_MAP      {\
+            {PA_01, 0UL, 1},\
+            {PA_00, 0UL, 0},\
+            {PA_05, 0UL, 5},\
+            {PA_06, 0UL, 6},\
+            {PA_04, 0UL, 4},\
+            {PB_01, 0UL, 9},\
+            {PB_00, 0UL, 8},\
+            {PA_07, 0UL, 7},\
+            }
+
+        #define ADC_LX_ID		0
+        #define ADC_LY_ID		1
+        #define ADC_RX_ID		2
+        #define ADC_RY_ID		3
+        #define ADC_L2_ID		4
+        #define ADC_R2_ID		5
 
 
-    #define SET_IIC_SDA_DIR_IN          GPIOA->CFGHR = GPIOA->CFGHR &(~0XF000000) | 0b1000<<((14-8)*4); GPIOA->BSHR |= 1<<14;
-    #define SET_IIC_SDA_DIR_OUT         GPIOA->CFGHR = GPIOA->CFGHR &(~0XF000000) | 0b0010<<((14-8)*4);
+        #define IIC_GPIO_SDA_PIN_PORT       PA_14
+        #define IIC_GPIO_SCK_PIN_PORT       PA_13
 
-    #define SET_IIC_SDA_HIGH            GPIOA->BSHR |= 1<<14;
-    #define SET_IIC_SDA_LOW             GPIOA->BCR |= 1<<14;
-    #define SET_IIC_SCL_HIGH            GPIOA->BSHR |= 1<<13;
-    #define SET_IIC_SCL_LOW             GPIOA->BCR |= 1<<13;
-    #define GET_IIC_SDA_DATA            (GPIOA->INDR & (1<<14))
-    
-    //  #define HW_PWM_MAP {\
-	// 		{IO_PORTB_03, NULL,1},\
-	// 	}
+
+        #define SET_IIC_SDA_DIR_IN          GPIOA->CFGHR = GPIOA->CFGHR &(~0XF000000) | 0b1000<<((14-8)*4); GPIOA->BSHR |= 1<<14;
+        #define SET_IIC_SDA_DIR_OUT         GPIOA->CFGHR = GPIOA->CFGHR &(~0XF000000) | 0b0010<<((14-8)*4);
+
+        #define SET_IIC_SDA_HIGH            GPIOA->BSHR |= 1<<14;
+        #define SET_IIC_SDA_LOW             GPIOA->BCR |= 1<<14;
+        #define SET_IIC_SCL_HIGH            GPIOA->BSHR |= 1<<13;
+        #define SET_IIC_SCL_LOW             GPIOA->BCR |= 1<<13;
+        #define GET_IIC_SDA_DATA            (GPIOA->INDR & (1<<14))
+        
+        //  #define HW_PWM_MAP {\
+        // 		{IO_PORTB_03, NULL,1},\
+        // 	}
     #endif
 
     #ifndef STORE_STRUCT_DEF
@@ -105,6 +114,7 @@ ________________________________________________________________________________
         uint8_t sub_mode;\
         uint8_t res[7];\
         int16_t rocker_cal[18];\
+        uint8_t app_imu_data[13];\
         uint8_t map [GAMEPAD_CONFIG_MAX*GAMEPAD_SETTING_LEN];\
     }
     #endif

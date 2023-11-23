@@ -23,7 +23,7 @@ ________________________________________________________________________________
 #include "debug.h"
 GPIO_TypeDef * get_gpio_port(pin_t io)
 {
-    GPIO_TypeDef * base;
+    GPIO_TypeDef * base = NULL;
     switch (io>>16)
     {
     case 0:
@@ -43,7 +43,7 @@ GPIO_TypeDef * get_gpio_port(pin_t io)
 
 uint32_t get_gpio_rcc(pin_t io)
 {
-    uint32_t rcc;
+    uint32_t rcc = 0;
     switch (io>>16)
     {
     case 0:
