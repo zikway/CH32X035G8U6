@@ -37,7 +37,7 @@
 #define pack_head1      0x05
 #define type1           0x02
 volatile uint32_t mSysTick;   //1ms
-extern bool charger_in;
+bool charger_in = false;
 
 void TIM1_Init(void)
 {

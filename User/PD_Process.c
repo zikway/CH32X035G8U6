@@ -33,7 +33,7 @@ UINT8  Adapter_SrcCap[ 30 ];                                                    
 
 UINT8  PDO_Len;
 
-
+bool cc_connected = false; //仅用于SRC模式
 bool pd_mode = SNK;
 /* SrcCap Table */
 UINT8 SrcCap_5V3A_Tab[ 4 ]  = { 0X2C, 0X91, 0X01, 0X3E };
@@ -433,6 +433,12 @@ UINT8 PD_SRC_Detect( void )
                 }
             }
         }
+    }
+    if(ret == 0)
+    {
+        cc_connected = false;
+    }else{
+        cc_connected = true;
     }
     return( ret );
 }

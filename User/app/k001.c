@@ -25,28 +25,25 @@
 #define DISCHARGE(en)               hw_gpio_output(DISCHARGE_PIN, en)
 #define CHARGER_DET()               (m_adc_data[CHARGER] > 1000)
 
-bool charger_in = false;
-bool ps_ready = true;
-bool phone_disconnected = false;
-
+extern bool charger_in;
 
 
 
 void power_manager_init(void)
 {
     hw_gpio_cfg_output(CC1_5_1K_PULLDOWN_PIN);
-    hw_gpio_cfg_output(VBUS_EN_PIN);
+    // hw_gpio_cfg_output(VBUS_EN_PIN);
     hw_gpio_cfg_output(DISCHARGE_PIN);
 
     GET_POWER_FROM_PHONE(1);
-    CHARG_PHONE(0); //默认关闭给手机充电
+    // CHARG_PHONE(0); //默认关闭给手机充电
     DISCHARGE(0);
 }
 
 void power_manager_handle(void)
 {
     static uint32_t t;
-
+    static bool det_cc_disconnected = false;
     //检查充电的插入与拔出
     if(mSysTick -t > 10)
     {
@@ -61,6 +58,23 @@ void power_manager_handle(void)
 
             }
             logi("charger_in: %d\n", det);
+        }
+        //手机拔出后，再把充电器的情况，快速放电,防止PD工作
+        if(pd_mode == SRC){
+            if(!det_cc_disconnected){
+                if(cc_connected){
+                    det_cc_disconnected = true;
+                }
+            }else{ //detecting cc disconnected
+                if(!cc_connected){
+                    if(!charger_in){
+                        logi("phone disconnected\n");
+                        DISCHARGE(1);
+                    }else{
+                        det_cc_disconnected = false;
+                    }
+                }
+            }
         }
     }
 }
@@ -141,7 +155,7 @@ bool zkm_vendor_host_decode(tTrp_handle* cmd_tr,uint8_t *buf,uint16_t len)
 bool zkm_vendor_device_decode(tTrp_handle* cmd_tr,uint8_t *pDat,uint16_t len)
 { 
       bool ret = false;
- logd("zkm_decode_h:");dumpd(pDat,len);
+//  logd("zkm_decode_h:");dumpd(pDat,len);
     switch (pDat[2]){
     case CMD_ROCKER_EVE:
       // logd_r("11111");

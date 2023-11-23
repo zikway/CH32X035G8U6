@@ -41,7 +41,7 @@ extern __attribute__ ((aligned(4))) uint8_t PD_Rx_Buf[ 34 ];
 extern __attribute__ ((aligned(4))) uint8_t PD_Tx_Buf[ 34 ];
 
 extern bool pd_mode;
-
+extern bool cc_connected;
 /***********************************************************************************************************************/
 /* Function extensibility */
 extern void PD_Rx_Mode( void );
