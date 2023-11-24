@@ -14,6 +14,7 @@
 #include "RGB1W.h"
 #include "debug.h"
 #include "app_joystick.h"
+#include "gpad.h"
 
 #define PHONE       6 //手機電源VBUS
 #define CHARGER     7 //充電器電源VIN
@@ -138,14 +139,14 @@ void key_analyse(void)
         logi("key a pressed\n");
     }
 
-    if (JOYSTICK_CAl_END_KEY == (JOYSTICK_CAl_END_KEY & key_press_long)){
-        key_single_event_send(KEY_EVT_CALIBRATION, true);
-    }else{
-        key_single_event_send(KEY_EVT_CALIBRATION, false);
-    }
-    if ((JOYSTICK_CAl_END_KEY & key_pressed_b)){
-        app_joystick_calibration_end();
-    }
+    // if (JOYSTICK_CAl_END_KEY == (JOYSTICK_CAl_END_KEY & key_press_long)){
+    //     key_single_event_send(KEY_EVT_CALIBRATION, true);
+    // }else{
+    //     key_single_event_send(KEY_EVT_CALIBRATION, false);
+    // }
+    // if ((JOYSTICK_CAl_END_KEY & key_pressed_b)){
+    //     app_joystick_calibration_end();
+    // }
     
     if(key_pressed & HW_KEY_B)
     {
@@ -180,6 +181,8 @@ bool zkm_vendor_device_decode(tTrp_handle* cmd_tr,uint8_t *pDat,uint16_t len)
 
 void user_vender_init(void)//weak      2
 {
+    logd_r("mstorep->flash_head=%d\n",mstorep->flash_head);
+    logd_r("mstorep->sub_mode=%d\n",mstorep->sub_mode);
     logi("%s\n",__func__);
     app_rgb_blink(0, 1000, RGB_FOREVER, WHITE);
 }
@@ -199,6 +202,7 @@ void user_task_handle(void)
 {
     static uint32_t t = 0;
     uint8_t w_len=5;
+    uint16_t i;
     gamepad_key_t gpad_key;
     //app_fifo_write(&m_uart_rx_fifo,test_buf,&w_len);
     //logd("222=%x\n",(uint8_t)USART_ReceiveData(USART2));
@@ -209,10 +213,13 @@ void user_task_handle(void)
     if(mSysTick -t > 1000)
     {
         t = mSysTick;
-        logi("key:%x, lx:%d, ly:%d, rx:%d, ry:%d, lt:%d, rt:%d, %d, %d, %d, %d, %d, %d\n" \
-        ,m_gpad_key.key,m_gpad_key.lx,m_gpad_key.ly,m_gpad_key.rx,m_gpad_key.ry,        \
-        m_gpad_key.l2,m_gpad_key.r2, m_gpad_key.acc.x, m_gpad_key.acc.y, m_gpad_key.acc.z, m_gpad_key.gyro.x, m_gpad_key.gyro.y, m_gpad_key.gyro.z);
+        mstorep->flash_head=66;
+            mstorep->sub_mode=66;
+            storage_sync();
+         logi("key:%x, lx:%d, ly:%d, rx:%d, ry:%d, lt:%d, rt:%d, %d, %d, %d, %d, %d, %d\n" \
+         ,m_gpad_key.key,m_gpad_key.lx,m_gpad_key.ly,m_gpad_key.rx,m_gpad_key.ry,        \
+         m_gpad_key.l2,m_gpad_key.r2, m_gpad_key.acc.x, m_gpad_key.acc.y, m_gpad_key.acc.z, m_gpad_key.gyro.x, m_gpad_key.gyro.y, m_gpad_key.gyro.z);
     }
-    power_manager_handle();
+   power_manager_handle();
 }
 #endif

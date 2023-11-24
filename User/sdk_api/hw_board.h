@@ -115,7 +115,6 @@ ________________________________________________________________________________
         uint8_t res[7];\
         int16_t rocker_cal[18];\
         uint8_t app_imu_data[13];\
-        uint8_t map [GAMEPAD_CONFIG_MAX*GAMEPAD_SETTING_LEN];\
     }
     #endif
 #endif
