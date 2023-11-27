@@ -89,16 +89,30 @@ void sdk_uart_send(uint8_t index, uint8_t * buffer, uint16_t len)
 
  void USART2_IRQHandler(void)
 {
-     uint16_t w_len=1;
-    static uint8_t i=0;
-    if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
-        {
-        USART_ClearITPendingBit(USART2, USART_IT_RXNE);
-        test_buf[0] =USART_ReceiveData(USART2);
-        if(ERROR_SUCCESS != app_fifo_put(&m_uart_rx_fifo, test_buf[0]))
-        {
-        	logd("uv\n\r");
-        }
-            // app_fifo_write(&m_uart_rx_fifo,test_buf,&w_len);
-        }
+     uint16_t w_len=9;
+     static uint32_t i;
+     volatile uint8_t val;
+     if(USART_GetFlagStatus(USART2, USART_FLAG_ORE) == SET)
+    {
+        //logd("hard ov \r\n");  //串口硬件缓冲buf溢出 上一个字节还未处理  又收到第二个字节
+        USART_ClearFlag(USART2, USART_FLAG_ORE); //清除溢出中断
+       // USART_ReceiveData(USART2);
+    }
+//    if(USART_GetITStatus(USART2, USART_IT_RXNE) != RESET)
+       {
+//        USART_ClearITPendingBit(USART2, USART_IT_RXNE);
+//        test_buf[i] =USART_ReceiveData(USART2);
+//        i++;
+//        if(i==9){
+//            i=0;
+//           app_fifo_write(&m_uart_rx_fifo,test_buf,&w_len);
+//        }
+        val = USART_ReceiveData(USART2);
+               if(ERROR_SUCCESS != app_fifo_put(&m_uart_rx_fifo, val))
+               {
+                   #if DEBUGEN
+                   logd("uv\n\r");
+                   #endif
+               }
+       }
 }
