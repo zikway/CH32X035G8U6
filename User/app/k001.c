@@ -129,14 +129,14 @@ void key_analyse(void)
         logi("key a pressed\n");
     }
 
-    // if (JOYSTICK_CAl_END_KEY == (JOYSTICK_CAl_END_KEY & key_press_long)){
-    //     key_single_event_send(KEY_EVT_CALIBRATION, true);
-    // }else{
-    //     key_single_event_send(KEY_EVT_CALIBRATION, false);
-    // }
-    // if ((JOYSTICK_CAl_END_KEY & key_pressed_b)){
-    //     app_joystick_calibration_end();
-    // }
+    if (JOYSTICK_CAl_END_KEY == (JOYSTICK_CAl_END_KEY & key_press_long)){
+        key_single_event_send(KEY_EVT_CALIBRATION, true);
+    }else{
+        key_single_event_send(KEY_EVT_CALIBRATION, false);
+    }
+    if ((JOYSTICK_CAl_END_KEY & key_pressed_b)){
+        app_joystick_calibration_end();
+    }
     
     if(key_pressed & HW_KEY_B)
     {
