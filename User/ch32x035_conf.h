@@ -31,7 +31,7 @@
 #include "ch32x035_misc.h"
 #include "ch32x035_usbpd.h"
 #include "ch32x035_usb.h"
-
+#include "PIOC_SFR.h"
 
 #endif
 

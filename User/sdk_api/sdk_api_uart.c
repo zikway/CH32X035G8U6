@@ -101,5 +101,4 @@ void sdk_uart_send(uint8_t index, uint8_t * buffer, uint16_t len)
         }
             // app_fifo_write(&m_uart_rx_fifo,test_buf,&w_len);
         }
-        }
 }

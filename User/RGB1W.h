@@ -20,7 +20,7 @@
 
 #define		RGB1W_FREQ_CFG	(0x000C*2)	// system frequency config
 
-#define		RGB1W_CYC_48M	82		// bit cycle for Fsys=48MHz, 1.167uS/cycle
+#define		RGB1W_CYC_48M	82		// bit cycle for Fsys=48MHz, 1.71uS/cycle
 #define		RGB1W_CYC_24M	28		// bit cycle for Fsys=24MHz, 1.167uS/cycle
 #define		RGB1W_CMD_RAM	0x80	// notice PIOC to send data from RAM
 

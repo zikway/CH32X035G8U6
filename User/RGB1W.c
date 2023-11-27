@@ -89,7 +89,7 @@ void RGB1W_Init ( void ) {
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOC, ENABLE);
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_IO2W, ENABLE);
 
-#if 1  //PC18
+#if 0  //PC18
     GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE);
     GPIO_SetBits(GPIOC, GPIO_Pin_18);
 
