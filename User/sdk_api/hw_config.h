@@ -78,7 +78,7 @@ ________________________________________________________________________________
     //-------------------------------------------------------
     #if K001
         #define APP_KEY_ENABLED                     1
-
+        #define ZKM_UART_KEY_REPORT_ENABLE          1
         #define UART_CMD_MAX                        72
         #define UART_LONG_CMD_MAX                   0x220
         #define UART_RX_BUFF_LEN                    UART_LONG_CMD_MAX
