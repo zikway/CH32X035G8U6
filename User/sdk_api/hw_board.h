@@ -57,8 +57,8 @@ ________________________________________________________________________________
         #define KEY_R3_GPIO                 PA_09     //R3
         #define KEY_R1_GPIO                 PB_11     //RB
         #define KEY_START_GPIO               PB_09     //菜单键
-        #define KEY_CAPTURE_GPIO            PA_19     //截图
-        #define KEY_SELECT_GPIO             PA_17     //视窗
+        #define KEY_CAPTURE_GPIO             PA_17    //截图
+        #define KEY_SELECT_GPIO             PA_19     //视窗
 
         #define HW_ADC_MAP_NUM  8
         //lx,

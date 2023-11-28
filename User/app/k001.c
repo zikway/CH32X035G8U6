@@ -198,4 +198,31 @@ void user_task_handle(void)
     // }
    power_manager_handle();
 }
+
+void app_rgb_finished_cb(app_rgb_id_t id){
+    app_send_command(&mTrp_uart,0XF1, NULL, 0);
+}
+
+void app_joystick_weak_cal_event(app_joystick_cal_t event)
+{
+    static uint8_t cal_event;
+    if(cal_event != event){
+        cal_event = event;
+        switch (event)
+        {
+        case APP_JOYSTICK_CAL_MID:
+            app_rgb_blink(0,BLINK_SLOW,RGB_FOREVER,WHITE);
+            break;
+        case APP_JOYSTICK_CAL_SUCCEED:
+            app_rgb_blink(0, BLINK_FAST, 3, WHITE);
+            break;
+        case APP_JOYSTICK_CAL_FAILED:
+            app_rgb_finished_cb(0);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
 #endif
