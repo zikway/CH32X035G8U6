@@ -173,7 +173,6 @@ void user_vender_init(void)//weak      2
     logd_r("mstorep->flash_head=%d\n",mstorep->flash_head);
     logd_r("mstorep->sub_mode=%d\n",mstorep->sub_mode);
     logi("%s\n",__func__);
-    app_rgb_blink(0, 1000, RGB_FOREVER, WHITE);
 }
 
 
@@ -190,25 +189,13 @@ void hw_user_vender_deinit(void)
 void user_task_handle(void)
 {
     static uint32_t t = 0;
-    uint8_t w_len=5;
-    uint16_t i;
-    gamepad_key_t gpad_key;
-    //app_fifo_write(&m_uart_rx_fifo,test_buf,&w_len);
-    //logd("222=%x\n",(uint8_t)USART_ReceiveData(USART2));
-    // if(usart_flag){
-    //     usart_flag =false;
-    //  app_fifo_write(&m_uart_rx_fifo,test_buf,&w_len);
+    // if(mSysTick -t > 1000)
+    // {
+    //     t = mSysTick;
+    //      logi("key:%x, lx:%d, ly:%d, rx:%d, ry:%d, lt:%d, rt:%d, %d, %d, %d, %d, %d, %d\n" \
+    //      ,m_gpad_key.key,m_gpad_key.lx,m_gpad_key.ly,m_gpad_key.rx,m_gpad_key.ry,        \
+    //      m_gpad_key.l2,m_gpad_key.r2, m_gpad_key.acc.x, m_gpad_key.acc.y, m_gpad_key.acc.z, m_gpad_key.gyro.x, m_gpad_key.gyro.y, m_gpad_key.gyro.z);
     // }
-    if(mSysTick -t > 1000)
-    {
-        t = mSysTick;
-        mstorep->flash_head=66;
-            mstorep->sub_mode=66;
-            storage_sync();
-         logi("key:%x, lx:%d, ly:%d, rx:%d, ry:%d, lt:%d, rt:%d, %d, %d, %d, %d, %d, %d\n" \
-         ,m_gpad_key.key,m_gpad_key.lx,m_gpad_key.ly,m_gpad_key.rx,m_gpad_key.ry,        \
-         m_gpad_key.l2,m_gpad_key.r2, m_gpad_key.acc.x, m_gpad_key.acc.y, m_gpad_key.acc.z, m_gpad_key.gyro.x, m_gpad_key.gyro.y, m_gpad_key.gyro.z);
-    }
    power_manager_handle();
 }
 #endif
