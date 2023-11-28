@@ -87,6 +87,7 @@ ________________________________________________________________________________
         #define APP_RGB_ENABLED                     1
         #define APP_RGB_NUMS                        1
         #define BREATH_TRIANGLE
+        #define APP_RGB_CMD_ENABLED                 1       
         // #define HW_IIC_ENABLED                      1
         // #define  IIC_DELAY                          __NOP();//默认IIC为400KHZ
         // #define APP_IMU_ENABLED                     1

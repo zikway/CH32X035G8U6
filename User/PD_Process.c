@@ -1125,7 +1125,7 @@ void PD_SRC_Main_Proc( )
             if( PD_Ctl.PD_Comm_Timer > 159 )
             {
                 PD_Load_Header( 0x00, DEF_TYPE_SRC_CAP );
-                status = PD_Send_Handle(SrcCap_5V1A5_Tab, 4 );
+                status = PD_Send_Handle(SrcCap_5V3A_Tab, 4 );
                 if( status == DEF_PD_TX_OK )
                 {
                     PD_Ctl.PD_State = STA_RX_REQ_WAIT;

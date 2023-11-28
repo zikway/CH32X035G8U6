@@ -21,7 +21,7 @@
 #define PHONE       6 //手機電源VBUS
 #define CHARGER     7 //充電器電源VIN
 
-#define CC1_5_1K_PULLDOWN_PIN       PC_07   //输出 高电平 -> 拉低5.1K，此表示从手机端取电
+#define CC1_5_1K_PULLDOWN_PIN       PB_04   //输出 高电平 -> 拉低5.1K，此表示从手机端取电
 #define VBUS_EN_PIN                 PB_05   //输出 高电平 -> 手机充电，低电平 -> 停止手机充电
 #define DISCHARGE_PIN               PA_08   //输出 高电平 -> 设备放电，达到快速关机
 #define GET_POWER_FROM_PHONE(en)    hw_gpio_output(CC1_5_1K_PULLDOWN_PIN, en);
@@ -68,7 +68,6 @@ void power_manager_handle(void)
             if(!det_cc_disconnected){
                 if(cc_connected){
                     det_cc_disconnected = true;
-                    CHARG_PHONE(0);
                 }
             }else{ //detecting cc disconnected
                 if(!cc_connected){
