@@ -18,6 +18,8 @@
 
 #include "debug.h"
 #include "RGB1W.h"
+#include "app_command.h"
+
 #define PHONE       6 //手機電源VBUS
 #define CHARGER     7 //充電器電源VIN
 
@@ -31,6 +33,8 @@
 
 extern bool charger_in;
 
+
+#define CUSTOM_CMD_RGB_CB           0xF1
 
 
 void power_manager_init(void)
@@ -158,10 +162,7 @@ bool zkm_vendor_device_decode(tTrp_handle* cmd_tr,uint8_t *pDat,uint16_t len)
       bool ret = false;
 //  logd("zkm_decode_h:");dumpd(pDat,len);
     switch (pDat[2]){
-    case CMD_ROCKER_EVE:
-      // logd_r("11111");
-        ret = true;
-        break; 
+
     }
 	return ret;
 
@@ -188,7 +189,7 @@ void hw_user_vender_deinit(void)
 
 void user_task_handle(void)
 {
-    static uint32_t t = 0;
+    static uint32_t t = 0, tx_timer;
     // if(mSysTick -t > 1000)
     // {
     //     t = mSysTick;
@@ -196,11 +197,20 @@ void user_task_handle(void)
     //      ,m_gpad_key.key,m_gpad_key.lx,m_gpad_key.ly,m_gpad_key.rx,m_gpad_key.ry,        \
     //      m_gpad_key.l2,m_gpad_key.r2, m_gpad_key.acc.x, m_gpad_key.acc.y, m_gpad_key.acc.z, m_gpad_key.gyro.x, m_gpad_key.gyro.y, m_gpad_key.gyro.z);
     // }
+    
+    if(m_task_tick10us - tx_timer >= 200){
+        tx_timer = m_task_tick10us;
+        gamepad_key_t   gpad_key;
+        gpad_key = m_gpad_key;
+        gamepad_key_hl_swap(&gpad_key);
+        mTrp_uart.index = TR_CMD_INDEX;
+        app_send_command(&mTrp_uart,CMD_ROCKER_EVE, (uint8_t *)&gpad_key, 14);
+    }
    power_manager_handle();
 }
 
 void app_rgb_finished_cb(app_rgb_id_t id){
-    app_send_command(&mTrp_uart,0XF1, NULL, 0);
+    app_send_command(&mTrp_uart, CUSTOM_CMD_RGB_CB, NULL, 0);
 }
 
 void app_joystick_weak_cal_event(app_joystick_cal_t event)
