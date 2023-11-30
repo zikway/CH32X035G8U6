@@ -15,6 +15,8 @@
 #include "debug.h"
 #include "app_joystick.h"
 #include "gpad.h"
+#include "app_rgb.h"
+#include "app_command.h"
 
 #include "debug.h"
 #include "RGB1W.h"
@@ -35,7 +37,7 @@ extern bool charger_in;
 
 
 #define CUSTOM_CMD_RGB_CB           0xF1
-
+#define CUSTOM_CMD_SLEEP            0xF2
 
 void power_manager_init(void)
 {
@@ -151,6 +153,37 @@ void key_analyse(void)
     }
 }
 
+        
+void Sleep_Wakeup_Cfg( void )
+{
+    EXTI_InitTypeDef EXTI_InitStructure = { 0 };
+
+    /* Enable GPIOB clock */
+    RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO, ENABLE );
+
+    GPIO_EXTILineConfig( GPIO_PortSourceGPIOB, GPIO_PinSource2 );
+    EXTI_InitStructure.EXTI_Line = EXTI_Line2;
+    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Event;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init( &EXTI_InitStructure );
+
+    GPIO_EXTILineConfig( GPIO_PortSourceGPIOB, GPIO_PinSource6 );
+    EXTI_InitStructure.EXTI_Line = EXTI_Line6;
+    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Event;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init( &EXTI_InitStructure );
+
+    GPIO_EXTILineConfig( GPIO_PortSourceGPIOB, GPIO_PinSource8 );
+    EXTI_InitStructure.EXTI_Line = EXTI_Line8;
+    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Event;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
+    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
+    EXTI_Init( &EXTI_InitStructure );
+
+    EXTI->INTENR |= EXTI_INTENR_MR2 | EXTI_INTENR_MR6 | EXTI_INTENR_MR8;
+}
 
 
 bool zkm_vendor_host_decode(tTrp_handle* cmd_tr,uint8_t *buf,uint16_t len)
@@ -163,6 +196,13 @@ bool zkm_vendor_device_decode(tTrp_handle* cmd_tr,uint8_t *pDat,uint16_t len)
 //  logd("zkm_decode_h:");dumpd(pDat,len);
     switch (pDat[2]){
 
+    case CUSTOM_CMD_SLEEP:
+        logi("sleep\n");
+        //enable wakeup pin
+        Sleep_Wakeup_Cfg();
+        PWR_EnterSTOPMode(PWR_STOPEntry_WFE);
+        ret = true;
+        break;
     }
 	return ret;
 

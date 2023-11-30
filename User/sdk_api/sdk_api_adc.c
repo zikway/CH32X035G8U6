@@ -30,6 +30,7 @@
 #define ADC_REFERENCE_VOLTAGE_MV          2600
 #define ADC_REF_VOL_DIFFERENCE_MULT       2
 #define ADC_TICK2VOL_REF_VOLTAGE_MV       (ADC_REFERENCE_VOLTAGE_MV * ADC_REF_VOL_DIFFERENCE_MULT)
+uint16_t dma_adc[HW_ADC_MAP_NUM];                //全局变量, 防止adc采样失败数据出错
 
 extern void DMA_Tx_Init(DMA_Channel_TypeDef *DMA_CHx, u32 ppadr, u32 memadr, u16 bufsize);
 
@@ -45,8 +46,8 @@ uint8_t get_pin(pin_map_t *p)
 
 bool sdk_api_get_adc_value(uint8_t id, const pin_map_t* p_map, uint16_t* vaulep)
 {
-    
-    return false;
+    *vaulep = dma_adc[id] ;
+    return true;
 }
 
 
@@ -92,7 +93,7 @@ bool sdk_api_adc_init(const pin_map_t* p_map,uint8_t count)
     {
         ADC_RegularChannelConfig(ADC1, get_channel(&p_map[i]), i+1, ADC_SampleTime_11Cycles);
     }
-    DMA_Tx_Init(DMA1_Channel1, (u32)&ADC1->RDATAR, (u32)m_adc_data, HW_ADC_MAP_NUM);
+    DMA_Tx_Init(DMA1_Channel1, (u32)&ADC1->RDATAR, (u32)dma_adc, HW_ADC_MAP_NUM);
     DMA_Cmd(DMA1_Channel1, ENABLE);
 
     ADC_DMACmd(ADC1, ENABLE);
