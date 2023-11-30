@@ -185,6 +185,27 @@ void Sleep_Wakeup_Cfg( void )
     EXTI->INTENR |= EXTI_INTENR_MR2 | EXTI_INTENR_MR6 | EXTI_INTENR_MR8;
 }
 
+void MCU_Sleep_Wakeup_Operate( void )
+{
+    printf( "Sleep\r\n" );
+    __disable_irq();
+    EXTI_ClearFlag( EXTI_Line2 | EXTI_Line6 | EXTI_Line8);
+    
+    PWR_EnterSTOPMode(PWR_STOPEntry_WFE);
+
+    if( EXTI_GetFlagStatus(EXTI_Line2 | EXTI_Line6 | EXTI_Line8) != RESET  )
+    {
+        EXTI_ClearFlag(EXTI_Line2 | EXTI_Line6 | EXTI_Line8);
+    }
+    __enable_irq();
+    printf( "Wake\r\n" );
+    hw_uart_close();
+    //拉低TX电平>2ms
+    hw_gpio_cfg_output(TR_UART2_TX_PIN);
+    hw_gpio_output(TR_UART2_TX_PIN, 0);
+    delay_ms(5);
+    hw_uart_init();
+}
 
 bool zkm_vendor_host_decode(tTrp_handle* cmd_tr,uint8_t *buf,uint16_t len)
 {
@@ -197,10 +218,9 @@ bool zkm_vendor_device_decode(tTrp_handle* cmd_tr,uint8_t *pDat,uint16_t len)
     switch (pDat[2]){
 
     case CUSTOM_CMD_SLEEP:
-        logi("sleep\n");
-        //enable wakeup pin
+        //cfg wakeup pin
         Sleep_Wakeup_Cfg();
-        PWR_EnterSTOPMode(PWR_STOPEntry_WFE);
+        MCU_Sleep_Wakeup_Operate();
         ret = true;
         break;
     }
@@ -230,13 +250,15 @@ void hw_user_vender_deinit(void)
 void user_task_handle(void)
 {
     static uint32_t t = 0, tx_timer;
-    // if(mSysTick -t > 1000)
-    // {
-    //     t = mSysTick;
-    //      logi("key:%x, lx:%d, ly:%d, rx:%d, ry:%d, lt:%d, rt:%d, %d, %d, %d, %d, %d, %d\n" \
-    //      ,m_gpad_key.key,m_gpad_key.lx,m_gpad_key.ly,m_gpad_key.rx,m_gpad_key.ry,        \
-    //      m_gpad_key.l2,m_gpad_key.r2, m_gpad_key.acc.x, m_gpad_key.acc.y, m_gpad_key.acc.z, m_gpad_key.gyro.x, m_gpad_key.gyro.y, m_gpad_key.gyro.z);
-    // }
+
+    if(mSysTick -t > 1000)
+    {
+        t = mSysTick;
+         logi("key:%x, lx:%d, ly:%d, rx:%d, ry:%d, lt:%d, rt:%d, %d, %d, %d, %d, %d, %d\n" \
+         ,m_gpad_key.key,m_gpad_key.lx,m_gpad_key.ly,m_gpad_key.rx,m_gpad_key.ry,        \
+         m_gpad_key.l2,m_gpad_key.r2, m_gpad_key.acc.x, m_gpad_key.acc.y, m_gpad_key.acc.z, m_gpad_key.gyro.x, m_gpad_key.gyro.y, m_gpad_key.gyro.z);
+    }
+    
     
     if(m_task_tick10us - tx_timer >= 200){
         tx_timer = m_task_tick10us;

@@ -18,6 +18,7 @@ void  sdk_api_boot(void)
 }
 void sdk_api_reset(void)
 {
+	NVIC_SystemReset();
 }
 void sdk_api_stop(void)
 {
