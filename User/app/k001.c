@@ -134,14 +134,6 @@ void key_analyse(void)
         logi("key a pressed\n");
     }
 
-    if (JOYSTICK_CAl_END_KEY == (JOYSTICK_CAl_END_KEY & key_press_long)){
-        key_single_event_send(KEY_EVT_CALIBRATION, true);
-    }else{
-        key_single_event_send(KEY_EVT_CALIBRATION, false);
-    }
-    if ((JOYSTICK_CAl_END_KEY & key_pressed_b)){
-        app_joystick_calibration_end();
-    }
     
     if(key_pressed & HW_KEY_B)
     {
@@ -278,18 +270,22 @@ void app_rgb_finished_cb(app_rgb_id_t id){
 void app_joystick_weak_cal_event(app_joystick_cal_t event)
 {
     static uint8_t cal_event;
+    uint8_t buff;
     if(cal_event != event){
         cal_event = event;
         switch (event)
         {
         case APP_JOYSTICK_CAL_MID:
-            app_rgb_blink(0,BLINK_SLOW,RGB_FOREVER,WHITE);
+             buff = APP_JOYSTICK_CAL_MID;
+             app_send_command(&mTrp_uart,CMD_CALIBRATION, &buff, 1);
             break;
         case APP_JOYSTICK_CAL_SUCCEED:
-            app_rgb_blink(0, BLINK_FAST, 3, WHITE);
+             buff = APP_JOYSTICK_CAL_SUCCEED;
+             app_send_command(&mTrp_uart,CMD_CALIBRATION, &buff,1);
             break;
         case APP_JOYSTICK_CAL_FAILED:
-            app_rgb_finished_cb(0);
+            buff = APP_JOYSTICK_CAL_FAILED;
+            app_send_command(&mTrp_uart,CMD_CALIBRATION, &buff,1);
             break;
         default:
             break;
