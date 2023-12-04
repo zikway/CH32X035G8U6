@@ -104,7 +104,6 @@ bool ex_app_rgb_show(uint8_t *frame)
     uint32_t i;
     uint8_t brightness;
 
-	if(0 == memcmp(s_frame,frame,APP_RGB_NUMS*3)) return true;
 	memcpy(s_frame,frame,APP_RGB_NUMS*3);
 	memcpy(grb,frame,APP_RGB_NUMS*3);
 
@@ -119,6 +118,8 @@ bool ex_app_rgb_show(uint8_t *frame)
     }else{
         RGB1W_SendSFR_Wait(APP_RGB_NUMS*3, grb);
     }
+    
+    memset(rgbs_frame, 0, APP_RGB_NUMS*3); //不断刷新，解决偶现亮着后自动熄灭的问题。
     return true;
 }
 

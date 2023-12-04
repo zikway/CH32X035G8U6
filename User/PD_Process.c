@@ -1172,7 +1172,7 @@ void PD_SRC_Main_Proc( )
                 if( status == DEF_PD_TX_OK )
                 {
                     printf("PS ready\r\n");
-                    PD_Ctl.PD_State = STA_IDLE;
+                    PD_Ctl.PD_State = STA_TX_DR_SWAP;
                     PD_Ctl.PD_Comm_Timer = 0;
                 }
                 else
@@ -1206,6 +1206,35 @@ void PD_SRC_Main_Proc( )
             PD_Rx_Mode( );                                                      /* switch to rx mode */
             PD_Ctl.PD_State = STA_IDLE;
             PD_Ctl.PD_Comm_Timer = 0;
+            break;
+        
+        case STA_TX_DR_SWAP:
+            PD_Ctl.PD_Comm_Timer += Tmr_Ms_Dlt;
+            if( PD_Ctl.PD_Comm_Timer > 19 )
+            {
+                PD_Load_Header( 0x00, DEF_TYPE_DR_SWAP );
+                status = PD_Send_Handle( NULL, 0 );
+                if( status == DEF_PD_TX_OK )
+                {
+                    printf("Tx DR Swap\r\n"); //充电时，CC线5.1K下拉取消了，USB会工作不正常。需要执行 DR Swap
+                    PD_Ctl.PD_State = STA_RX_DR_SWAP_ACCEPT;
+                    PD_Ctl.PD_Comm_Timer = 0;
+                }
+                else
+                {
+                    PD_Ctl.PD_State = STA_TX_SOFTRST;
+                    PD_Ctl.PD_Comm_Timer = 0;
+                }
+            }
+            break;
+            
+        case STA_RX_DR_SWAP_ACCEPT:
+            PD_Ctl.PD_Comm_Timer += Tmr_Ms_Dlt;
+            if( PD_Ctl.PD_Comm_Timer > 25 )
+            {
+                PD_Ctl.PD_State = STA_IDLE;
+                PD_Ctl.PD_Comm_Timer = 0;
+            }
             break;
 
         default:
@@ -1268,7 +1297,7 @@ void PD_SRC_Main_Proc( )
                 break;
 
             default:
-                printf("Unsupported Command\r\n");
+                printf("Unsupported Command :0X%X\r\n", DEF_TYPE_SOFT_RESET);
                 break;
         }
 
