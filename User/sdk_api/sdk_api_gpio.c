@@ -24,15 +24,15 @@ ________________________________________________________________________________
 GPIO_TypeDef * get_gpio_port(pin_t io)
 {
     GPIO_TypeDef * base = NULL;
-    switch (io>>16)
+    switch (io&HW_PORT_MASK)
     {
-    case 0:
+    case HW_PORTA_BASE:
         base = GPIOA;
         break;
-    case 1:
+    case HW_PORTB_BASE:
         base = GPIOB;
         break;
-    case 2:
+    case HW_PORTC_BASE:
         base = GPIOC;
         break;
     default:
@@ -44,15 +44,15 @@ GPIO_TypeDef * get_gpio_port(pin_t io)
 uint32_t get_gpio_rcc(pin_t io)
 {
     uint32_t rcc = 0;
-    switch (io>>16)
+    switch (io&HW_PORT_MASK)
     {
-    case 0:
+    case HW_PORTA_BASE:
         rcc = RCC_APB2Periph_GPIOA;
         break;
-    case 1:
+    case HW_PORTB_BASE:
         rcc = RCC_APB2Periph_GPIOB;
         break;
-    case 2:
+    case HW_PORTC_BASE:
         rcc = RCC_APB2Periph_GPIOC;
         break;
     default:
@@ -63,7 +63,7 @@ uint32_t get_gpio_rcc(pin_t io)
 
 uint32_t get_gpio_pin(pin_t io)
 {
-    return 1<<(io&0xffff);
+    return 1<<(io&HW_PIN_MASK);
 }
 /**
  * \brief Function for initializing the FIFO.

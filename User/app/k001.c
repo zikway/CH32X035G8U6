@@ -146,50 +146,105 @@ void key_analyse(void)
     }
 }
 
-        
-void Sleep_Wakeup_Cfg( void )
+uint8_t get_port_source(pin_t pin)
+{
+    uint8_t portsrc = GPIO_PortSourceGPIOA; 
+    switch (pin & HW_PORT_MASK)
+    {
+    case HW_PORTA_BASE: //PA
+        portsrc =  GPIO_PortSourceGPIOA;
+        break;
+    case HW_PORTB_BASE:
+        portsrc =  GPIO_PortSourceGPIOB;
+        break;
+    case HW_PORTC_BASE:
+        portsrc =  GPIO_PortSourceGPIOC;
+        break;
+    default:
+        break;
+    }
+    return portsrc;
+}
+
+uint8_t get_pin_source(pin_t pin)
+{
+    uint8_t src = GPIO_PinSource0;
+    return src + (pin & HW_PIN_MASK);
+}
+
+uint32_t get_pin_line(pin_t pin)
+{
+    uint8_t line = EXTI_Line0; 
+    return line<< (pin & HW_PIN_MASK);
+}
+
+const pin_t wake_pin[] = {
+    KEY_A_GPIO      ,
+    KEY_B_GPIO      ,
+    KEY_Y_GPIO      ,
+    KEY_X_GPIO      ,
+
+    KEY_UP_GPIO     ,
+    KEY_DOWN_GPIO   ,
+    KEY_LEFT_GPIO   ,
+    KEY_RIGHT_GPIO  ,
+
+    KEY_M1_GPIO     ,
+    KEY_M2_GPIO     ,
+    KEY_L1_GPIO     ,
+    KEY_M4_GPIO     ,
+    KEY_L3_GPIO     ,
+    KEY_R3_GPIO     ,
+    KEY_R1_GPIO     ,
+    KEY_START_GPIO  ,
+    KEY_CAPTURE_GPIO,
+    KEY_SELECT_GPIO ,
+};
+
+void Wakeup_Cfg(pin_t pin)
 {
     EXTI_InitTypeDef EXTI_InitStructure = { 0 };
 
     /* Enable GPIOB clock */
     RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO, ENABLE );
 
-    GPIO_EXTILineConfig( GPIO_PortSourceGPIOB, GPIO_PinSource2 );
-    EXTI_InitStructure.EXTI_Line = EXTI_Line2;
+    GPIO_EXTILineConfig(get_port_source(pin), get_pin_source(pin));
+    EXTI_InitStructure.EXTI_Line = get_pin_line(pin);
     EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Event;
     EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init( &EXTI_InitStructure );
 
-    GPIO_EXTILineConfig( GPIO_PortSourceGPIOB, GPIO_PinSource6 );
-    EXTI_InitStructure.EXTI_Line = EXTI_Line6;
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Event;
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    EXTI_Init( &EXTI_InitStructure );
+    EXTI->INTENR |= 1<<(pin & HW_PIN_MASK);
+}
 
-    GPIO_EXTILineConfig( GPIO_PortSourceGPIOB, GPIO_PinSource8 );
-    EXTI_InitStructure.EXTI_Line = EXTI_Line8;
-    EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Event;
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
-    EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    EXTI_Init( &EXTI_InitStructure );
+void clear_exti_flag(pin_t pin)
+{
+    EXTI_ClearFlag(1<<(pin & HW_PIN_MASK));
+}
 
-    EXTI->INTENR |= EXTI_INTENR_MR2 | EXTI_INTENR_MR6 | EXTI_INTENR_MR8;
+void clear_wakeup_flag()
+{
+    for(int i = 0; i < sizeof(wake_pin)/sizeof(pin_t); i++){
+        clear_exti_flag(wake_pin[i]);
+    }
+}
+
+void Sleep_Wakeup_Cfg()
+{
+    for(int i = 0; i < sizeof(wake_pin)/sizeof(pin_t); i++){
+        Wakeup_Cfg(wake_pin[i]);
+    }
 }
 
 void MCU_Sleep_Wakeup_Operate( void )
 {
     printf( "Sleep\r\n" );
     __disable_irq();
-    EXTI_ClearFlag( EXTI_Line2 | EXTI_Line6 | EXTI_Line8);
+    clear_wakeup_flag();
     
     PWR_EnterSTOPMode(PWR_STOPEntry_WFE);
-
-    if( EXTI_GetFlagStatus(EXTI_Line2 | EXTI_Line6 | EXTI_Line8) != RESET  )
-    {
-        EXTI_ClearFlag(EXTI_Line2 | EXTI_Line6 | EXTI_Line8);
-    }
+    clear_wakeup_flag();
     __enable_irq();
     printf( "Wake\r\n" );
     hw_uart_close();

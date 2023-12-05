@@ -11,6 +11,8 @@
 #define HW_PORTF_BASE   0x00050000
 #define HW_PORTG_BASE   0x00060000
 
+#define HW_PIN_MASK     0x0000FFFF
+#define HW_PORT_MASK    0xFFFF0000
 typedef enum
 {
     // Not connected
