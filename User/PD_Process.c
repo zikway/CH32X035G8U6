@@ -14,6 +14,7 @@
 #include <string.h>
 #include "PD_Process.h"
 #include <stdbool.h>
+#include "hw_debug.h"
 
 void USBPD_IRQHandler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
 
@@ -59,6 +60,15 @@ UINT8 Status_Ext_Tab[ 8 ] =
     0X00, 0X00, 0X00, 0X00,
 };
 
+__WEAK void vbus_on(void)
+{
+    
+}
+
+__WEAK void vbus_off(void)
+{
+    
+}
 
 /*********************************************************************
  * @fn      USBPD_IRQHandler
@@ -565,6 +575,8 @@ void PD_SRC_Det_Proc( void )
                 else
                 {
                     PD_Ctl.PD_State = STA_SINK_CONNECT;
+                    Delay_Ms(100);
+                    vbus_on();
                     printf("CC%d SINK Connect\r\n",status);
                 }
 
@@ -1106,6 +1118,7 @@ void PD_SRC_Main_Proc( )
         case STA_DISCONNECT:
             printf("Disconnect\r\n");
             PD_PHY_Reset( );
+            vbus_off();
             break;
 
         case STA_SINK_CONNECT:

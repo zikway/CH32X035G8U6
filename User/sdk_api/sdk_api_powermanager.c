@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "sdk_api_powermanager.h"
+#include "debug.h"
 
 void sdk_api_weakup_init(void)
 {

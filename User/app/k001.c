@@ -35,6 +35,15 @@
 
 extern bool charger_in;
 
+void vbus_on(void)
+{
+    CHARG_PHONE(1);
+}
+
+void vbus_off(void)
+{
+    CHARG_PHONE(0); 
+}
 
 #define CUSTOM_CMD_RGB_CB           0xF1
 #define CUSTOM_CMD_SLEEP            0xF2
@@ -64,8 +73,6 @@ void power_manager_handle(void)
             charger_in = det;
             if(charger_in){
                 GET_POWER_FROM_PHONE(false);
-                CHARG_PHONE(1);
-
             }
             logi("charger_in: %d\n", det);
         }
