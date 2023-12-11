@@ -201,7 +201,6 @@ const pin_t wake_pin[] = {
     KEY_M1_GPIO     ,
     KEY_M2_GPIO     ,
     KEY_L1_GPIO     ,
-    KEY_M4_GPIO     ,
     KEY_L3_GPIO     ,
     KEY_R3_GPIO     ,
     KEY_R1_GPIO     ,
