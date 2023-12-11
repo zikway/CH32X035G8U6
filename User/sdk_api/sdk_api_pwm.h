@@ -29,6 +29,21 @@
 {31,   3,     4|PWM_INVERT_ENABLED},\
 */
 
+typedef enum {
+    pwm_timer1,
+    pwm_timer2,
+    pwm_timer3,
+} pwm_timer_num_type;
+
+typedef enum {
+    pwm_ch1,
+    pwm_ch2,
+    pwm_ch3,
+    pwm_ch4,
+    pwm_ch_max,
+} pwm_ch_num_type;
+
+
 bool sdk_api_pwm_set_low_high_time(const pin_map_t* p_map, uint32_t freq, uint8_t duty);
 bool sdk_api_pwm_init(const pin_map_t* p_map,uint32_t freq, uint8_t duty);
 bool sdk_api_pwm_deinit(const pin_map_t* p_map);

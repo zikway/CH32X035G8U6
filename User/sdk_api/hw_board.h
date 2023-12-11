@@ -88,6 +88,7 @@ ________________________________________________________________________________
         #define ADC_R2_ID		5
 
 
+
         #define IIC_GPIO_SDA_PIN_PORT       PA_14
         #define IIC_GPIO_SCK_PIN_PORT       PA_13
 
@@ -101,9 +102,10 @@ ________________________________________________________________________________
         #define SET_IIC_SCL_LOW             GPIOA->BCR |= 1<<13;
         #define GET_IIC_SDA_DATA            (GPIOA->INDR & (1<<14))
         
-        //  #define HW_PWM_MAP {\
-        // 		{IO_PORTB_03, NULL,1},\
-        // 	}
+         #define HW_PWM_MAP {\
+        		{PA_00, pwm_timer2,pwm_ch1},\
+                {PA_01, pwm_timer2,pwm_ch2},\
+        	}
     #endif
 
     #ifndef STORE_STRUCT_DEF
