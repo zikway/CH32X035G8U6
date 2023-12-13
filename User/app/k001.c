@@ -119,9 +119,7 @@ bool ex_app_rgb_show(uint8_t *frame)
 		grb[i+1] = grb[i];
 		grb[i] = brightness;
 	}
-     for(int k = 0; k < 3; k++){
-            grb[k] =(uint8_t)grb[k] * 0.4;//* 0.75;
-        }
+
     if(APP_RGB_NUMS*3 > 32){
         RGB1W_SendRAM_Wait(APP_RGB_NUMS*3, grb);
     }else{
