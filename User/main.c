@@ -103,6 +103,11 @@ int main(void)
     logd_b("MODEL, VERSION:%s,V%x\n",DEFAULT_MODEL,SW_VERSION);
     gpad_board_init();
     gpad_init();
+    if(charger_in){
+        pd_mode = SRC;
+    }else{
+        pd_mode = SNK;
+    }
     PD_Init();
     while(1)
     {
@@ -111,7 +116,7 @@ int main(void)
 
         if(charging_pre != charger_in){
             charging_pre = charger_in;
-
+            //TODO: 使用PRSWAP切换模式
             logi("charger: %d\n", charger_in);
             if(charger_in){
                 pd_mode = SRC;

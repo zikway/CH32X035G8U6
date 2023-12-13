@@ -284,12 +284,21 @@ bool zkm_vendor_device_decode(tTrp_handle* cmd_tr,uint8_t *pDat,uint16_t len)
 
 }
 
+void get_charger_status(void)
+{
+    static uint32_t t;
+    for(int i=0; i<100; i++){
+        hw_adc_scan();
+    }
+    charger_in = CHARGER_DET();
+}
 
 void user_vender_init(void)//weak      2
 {
     logd_r("mstorep->flash_head=%d\n",mstorep->flash_head);
     logd_r("mstorep->sub_mode=%d\n",mstorep->sub_mode);
     logi("%s\n",__func__);
+    get_charger_status();
 }
 
 
