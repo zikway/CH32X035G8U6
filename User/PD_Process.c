@@ -15,6 +15,7 @@
 #include "PD_Process.h"
 #include <stdbool.h>
 #include "hw_debug.h"
+#include "hw_gpio.h"
 
 void USBPD_IRQHandler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
 
@@ -36,6 +37,9 @@ UINT8  PDO_Len;
 
 bool cc_connected = false; //仅用于SRC模式
 bool pd_mode = SNK;
+extern bool charger_in;
+bool src_det_en = true;
+bool prswap_rdy = false;
 /* SrcCap Table */
 UINT8 SrcCap_5V3A_Tab[ 4 ]  = { 0X2C, 0X91, 0X01, 0X3E };
 UINT8 SrcCap_5V1A5_Tab[ 4 ] = { 0X96, 0X90, 0X01, 0X3E };
@@ -70,6 +74,15 @@ __WEAK void vbus_off(void)
     
 }
 
+__WEAK void cc1_5_1k_pulldown(void)
+{
+    
+}
+
+__WEAK void cc1_5_1k_pulldown_remove(void)
+{
+    
+}
 /*********************************************************************
  * @fn      USBPD_IRQHandler
  *
@@ -576,7 +589,6 @@ void PD_SRC_Det_Proc( void )
                 {
                     PD_Ctl.PD_State = STA_SINK_CONNECT;
                     Delay_Ms(100);
-                    vbus_on();
                     printf("CC%d SINK Connect\r\n",status);
                 }
 
@@ -957,11 +969,7 @@ void PD_Main_Proc( )
 
         case STA_RX_PS_RDY:
             /* Status: PS_RDY received */
-            PD_Ctl.PD_State = STA_IDLE;
-            if( PD_Ctl.PD_State == STA_RX_APD_PS_RDY_WAIT )
-            {
-                PD_Ctl.PD_State = STA_RX_APD_PS_RDY;
-            }
+            PD_Ctl.PD_State = STA_IDLE;      
             break;
 
         case STA_TX_SOFTRST:
@@ -990,7 +998,28 @@ void PD_Main_Proc( )
             PD_Ctl.PD_State = STA_IDLE;
             PD_Ctl.PD_Comm_Timer = 0;
             break;
-
+        case STA_TX_PR_SWAP:
+            PD_Ctl.PD_Comm_Timer += Tmr_Ms_Dlt;
+            if( PD_Ctl.PD_Comm_Timer > 19 )
+            {                
+                PD_Load_Header( 0x00, DEF_TYPE_PR_SWAP );
+                status = PD_Send_Handle( NULL, 0 );
+                if( status == DEF_PD_TX_OK )
+                {
+                    printf("Tx PR Swap\r\n");
+                    PD_Ctl.PD_State = STA_RX_PR_SWAP_ACCEPT;
+                    PD_Ctl.PD_Comm_Timer = 0;
+                    pd_mode = SRC;
+                    cc1_5_1k_pulldown_remove();
+                    PD_SRC_Init();
+                }
+                else
+                {
+                    PD_Ctl.PD_State = STA_TX_SOFTRST;
+                    PD_Ctl.PD_Comm_Timer = 0;
+                }
+            }
+            break;
         default:
             break;
     }
@@ -1123,12 +1152,23 @@ void PD_SRC_Main_Proc( )
 
         case STA_SINK_CONNECT:
             PD_Ctl.PD_Comm_Timer += Tmr_Ms_Dlt;
-
+            vbus_on();
             if( PD_Ctl.PD_Comm_Timer > 159 )
             {
               PD_Ctl.Flag.Bit.Stop_Det_Chk = 0;
               PD_Ctl.PD_Comm_Timer = 0;
               PD_Ctl.PD_State = STA_TX_SRC_CAP;
+            }
+            break;
+        case STA_RX_PS_RDY:
+            /* Status: PS_RDY received */
+            //send ps_rdy
+            PD_Ctl.PD_Comm_Timer += Tmr_Ms_Dlt;
+            if( PD_Ctl.PD_Comm_Timer > 159 )
+            {
+              PD_Ctl.Flag.Bit.Stop_Det_Chk = 0;
+              PD_Ctl.PD_Comm_Timer = 0;
+              PD_Ctl.PD_State = STA_TX_PS_RDY;
             }
             break;
 
@@ -1185,7 +1225,17 @@ void PD_SRC_Main_Proc( )
                 if( status == DEF_PD_TX_OK )
                 {
                     printf("PS ready\r\n");
-                    PD_Ctl.PD_State = STA_TX_DR_SWAP;
+                    if(charger_in){
+                        if(!prswap_rdy){
+                            prswap_rdy = true;
+                            PD_Ctl.PD_State = STA_SINK_CONNECT;
+                        }
+                        else{
+                            src_det_en = true;
+                            PD_Ctl.PD_State = STA_IDLE;
+                        }
+                        
+                    }
                     PD_Ctl.PD_Comm_Timer = 0;
                 }
                 else
@@ -1269,7 +1319,12 @@ void PD_SRC_Main_Proc( )
                     PD_Ctl.PD_State = STA_RX_PS_RDY_WAIT;
                 }
                 break;
-
+            case DEF_TYPE_PS_RDY:
+                /* PS_RDY is received */
+                printf("PS_RDY is received\r\n");
+                PD_Ctl.PD_State = STA_RX_PS_RDY;
+                break;
+            
             case DEF_TYPE_REQUEST:
                 /* Request is received */
                 printf("Handle Request\r\n");
@@ -1310,7 +1365,7 @@ void PD_SRC_Main_Proc( )
                 break;
 
             default:
-                printf("Unsupported Command :0X%X\r\n", DEF_TYPE_SOFT_RESET);
+                printf("Unsupported Command :0X%X\r\n", pd_header);
                 break;
         }
 

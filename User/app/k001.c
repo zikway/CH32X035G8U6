@@ -17,6 +17,7 @@
 #include "gpad.h"
 #include "app_rgb.h"
 #include "app_command.h"
+#include "hw_adc.h"
 
 #include "debug.h"
 #include "RGB1W.h"
@@ -45,6 +46,16 @@ void vbus_off(void)
     CHARG_PHONE(0); 
 }
 
+void cc1_5_1k_pulldown(void)
+{
+   hw_gpio_output(CC1_5_1K_PULLDOWN_PIN, 1);
+}
+
+void cc1_5_1k_pulldown_remove(void)
+{
+   hw_gpio_output(CC1_5_1K_PULLDOWN_PIN, 0);
+}
+
 #define CUSTOM_CMD_RGB_CB           0xF1
 #define CUSTOM_CMD_SLEEP            0xF2
 
@@ -54,7 +65,7 @@ void power_manager_init(void)
     hw_gpio_cfg_output(VBUS_EN_PIN);
     hw_gpio_cfg_output(DISCHARGE_PIN);
 
-    GET_POWER_FROM_PHONE(1);
+    cc1_5_1k_pulldown();
     CHARG_PHONE(0); //默认关闭给手机充电
     DISCHARGE(0);
 }
@@ -66,16 +77,8 @@ void power_manager_handle(void)
     //检查充电的插入与拔出
     if(mSysTick -t > 10)
     {
-        bool det;
         t = mSysTick;
-        det = CHARGER_DET();
-        if(charger_in != det){
-            charger_in = det;
-            if(charger_in){
-                GET_POWER_FROM_PHONE(false);
-            }
-            logi("charger_in: %d\n", det);
-        }
+        charger_in = CHARGER_DET();
         //手机拔出后，再把充电器的情况，快速放电,防止PD工作
         if(pd_mode == SRC){
             if(!det_cc_disconnected){
@@ -284,7 +287,6 @@ bool zkm_vendor_device_decode(tTrp_handle* cmd_tr,uint8_t *pDat,uint16_t len)
 
 void get_charger_status(void)
 {
-    static uint32_t t;
     for(int i=0; i<100; i++){
         hw_adc_scan();
     }
@@ -312,15 +314,16 @@ void hw_user_vender_deinit(void)
 
 void user_task_handle(void)
 {
-    static uint32_t t = 0, tx_timer;
+    static uint32_t tx_timer;
 
-    if(mSysTick -t > 1000)
-    {
-        t = mSysTick;
-         logi("key:%x, lx:%d, ly:%d, rx:%d, ry:%d, lt:%d, rt:%d, %d, %d, %d, %d, %d, %d\n" \
-         ,m_gpad_key.key,m_gpad_key.lx,m_gpad_key.ly,m_gpad_key.rx,m_gpad_key.ry,        \
-         m_gpad_key.l2,m_gpad_key.r2, m_gpad_key.acc.x, m_gpad_key.acc.y, m_gpad_key.acc.z, m_gpad_key.gyro.x, m_gpad_key.gyro.y, m_gpad_key.gyro.z);
-    }
+    // static uint32_t t = 0;
+    // if(mSysTick -t > 1000)
+    // {
+    //     t = mSysTick;
+    //      logi("key:%x, lx:%d, ly:%d, rx:%d, ry:%d, lt:%d, rt:%d, %d, %d, %d, %d, %d, %d\n" \
+    //      ,m_gpad_key.key,m_gpad_key.lx,m_gpad_key.ly,m_gpad_key.rx,m_gpad_key.ry,        \
+    //      m_gpad_key.l2,m_gpad_key.r2, m_gpad_key.acc.x, m_gpad_key.acc.y, m_gpad_key.acc.z, m_gpad_key.gyro.x, m_gpad_key.gyro.y, m_gpad_key.gyro.z);
+    // }
     
     
     if(m_task_tick10us - tx_timer >= 200){

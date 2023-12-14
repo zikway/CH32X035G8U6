@@ -119,12 +119,12 @@ int main(void)
             //TODO: 使用PRSWAP切换模式
             logi("charger: %d\n", charger_in);
             if(charger_in){
-                pd_mode = SRC;
+                PD_Ctl.PD_State = STA_TX_PR_SWAP;
+                src_det_en = false;
             }else{
                 pd_mode = SNK;
+                PD_PHY_Reset();
             }
-            
-            PD_PHY_Reset();
         }
         /* Get the calculated timing interval value */
         TIM_ITConfig( TIM1, TIM_IT_Update , DISABLE );
@@ -136,6 +136,7 @@ int main(void)
         {
             PD_Ctl.Det_Timer = 0;
             if(pd_mode == SRC){
+                if(src_det_en)
                 PD_SRC_Det_Proc();
             }else{
                 PD_Det_Proc();
