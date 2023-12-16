@@ -62,6 +62,11 @@ extern void PD_SRC_Main_Proc( void );
 extern void PD_Request_Analyse( uint8_t pdo_idx, uint8_t *srccap, uint16_t *current );
 extern void PD_PDO_Analyse( uint8_t pdo_idx, uint8_t *srccap, uint16_t *current, uint16_t *voltage );
 
+extern void vbus_on(void);
+extern void vbus_off(void);
+extern void cc1_5_1k_pulldown(void);
+extern void cc1_5_1k_pulldown_remove(void);
+extern bool phone_plugin(void);
 #ifdef __cplusplus
 }
 #endif

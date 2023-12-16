@@ -37,9 +37,16 @@ UINT8  PDO_Len;
 
 bool cc_connected = false; //仅用于SRC模式
 bool pd_mode = SNK;
-extern bool charger_in;
 bool src_det_en = true;
-bool prswap_rdy = false;
+
+typedef enum {
+    STATE_START_SWAP,
+    STATE_WAIT_PS_READY,
+    STATE_PS_SWAP_END,
+}prswap_t;
+
+
+prswap_t prswap_sta = STATE_PS_SWAP_END;
 /* SrcCap Table */
 UINT8 SrcCap_5V3A_Tab[ 4 ]  = { 0X2C, 0X91, 0X01, 0X3E };
 UINT8 SrcCap_5V1A5_Tab[ 4 ] = { 0X96, 0X90, 0X01, 0X3E };
@@ -83,6 +90,22 @@ __WEAK void cc1_5_1k_pulldown_remove(void)
 {
     
 }
+
+__WEAK bool phone_plugin(void)
+{
+    
+}
+
+__WEAK bool charger_in(void)
+{
+    
+}
+
+__WEAK void pd_hw_init(void)
+{
+    
+}
+
 /*********************************************************************
  * @fn      USBPD_IRQHandler
  *
@@ -191,6 +214,7 @@ void PD_SINK_Init( )
  */
 void PD_PHY_Reset( void )
 {
+    printf("PD_PHY_Reset\r\n");
 	if(pd_mode == SNK){
     	PD_SINK_Init( );
     	PD_Ctl.Flag.Bit.Stop_Det_Chk = 0;                                     /* PD disconnection detection is enabled by default */
@@ -223,6 +247,8 @@ void PD_PHY_Reset( void )
  */
 void PD_Init( void )
 {
+    pd_hw_init();
+    
     GPIO_InitTypeDef GPIO_InitStructure = {0};
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);               /* Open PD I/O clock, AFIO clock and PD clock */
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
@@ -238,6 +264,12 @@ void PD_Init( void )
     memset( &PD_Ctl.PD_State, 0x00, sizeof( PD_CONTROL ) );
     Adapter_SrcCap[ 0 ] = 1;
     memcpy( &Adapter_SrcCap[ 1 ], SrcCap_5V3A_Tab, 4 );
+    
+    if(charger_in()){
+        pd_mode = SRC;
+    }else{
+        pd_mode = SNK;
+    }
     PD_PHY_Reset( );
     PD_Rx_Mode( );
 }
@@ -583,13 +615,13 @@ void PD_SRC_Det_Proc( void )
                 if( (USBPD->PORT_CC1 & CC_PD) || (USBPD->PORT_CC2 & CC_PD) )
                 {
                     PD_Ctl.PD_State = STA_SRC_CONNECT;
-                    printf("CC%d SRC Connect\r\n",status);
+                    printf("SRC CC%d SRC Connect\r\n",status);
                 }
                 else
                 {
                     PD_Ctl.PD_State = STA_SINK_CONNECT;
                     Delay_Ms(100);
-                    printf("CC%d SINK Connect\r\n",status);
+                    printf("SRC CC%d SINK Connect\r\n",status);
                 }
 
                 PD_Ctl.PD_Comm_Timer = 0;
@@ -928,6 +960,13 @@ void PD_Main_Proc( )
     /* Status analysis processing */
     switch( PD_Ctl.PD_State )
     {
+        case STA_DET_CHARGING:
+            /* Status: idle */
+            if(charger_in()){
+                PD_Ctl.PD_State = STA_TX_PR_SWAP;
+                src_det_en = false;
+            }
+            break;
         case STA_DISCONNECT:
             /* Status: Disconnected */
             printf("Disconnect\r\n");
@@ -969,7 +1008,7 @@ void PD_Main_Proc( )
 
         case STA_RX_PS_RDY:
             /* Status: PS_RDY received */
-            PD_Ctl.PD_State = STA_IDLE;      
+            PD_Ctl.PD_State = STA_DET_CHARGING;      
             break;
 
         case STA_TX_SOFTRST:
@@ -1010,6 +1049,7 @@ void PD_Main_Proc( )
                     PD_Ctl.PD_State = STA_RX_PR_SWAP_ACCEPT;
                     PD_Ctl.PD_Comm_Timer = 0;
                     pd_mode = SRC;
+                    prswap_sta = STATE_START_SWAP;
                     cc1_5_1k_pulldown_remove();
                     PD_SRC_Init();
                 }
@@ -1148,6 +1188,7 @@ void PD_SRC_Main_Proc( )
             printf("Disconnect\r\n");
             PD_PHY_Reset( );
             vbus_off();
+            prswap_sta = STATE_PS_SWAP_END;
             break;
 
         case STA_SINK_CONNECT:
@@ -1183,6 +1224,19 @@ void PD_SRC_Main_Proc( )
                 {
                     PD_Ctl.PD_State = STA_RX_REQ_WAIT;
                     printf("Send Source Cap Successfully\r\n");
+                }else{
+                    if(phone_plugin()){
+                        if( ++PD_Ctl.Err_Op_Cnt > 2 ){
+                        //手机连上了，1秒内连不上PD,说明PD协议不通的。这个情况切换到SINK模式
+                            logi("Unspurrort PD Phone plugin, switch to SINK MODE \r\n");
+                            pd_mode = SNK;
+                            vbus_off();
+                            cc1_5_1k_pulldown();
+                            PD_PHY_Reset( );
+                            PD_Ctl.Err_Op_Cnt = 0;
+                        }
+        
+                    }
                 }
                 PD_Ctl.PD_Comm_Timer = 0;
             }
@@ -1225,16 +1279,16 @@ void PD_SRC_Main_Proc( )
                 if( status == DEF_PD_TX_OK )
                 {
                     printf("PS ready\r\n");
-                    if(charger_in){
-                        if(!prswap_rdy){
-                            prswap_rdy = true;
+                    src_det_en = true;      
+                    if(prswap_sta < STATE_PS_SWAP_END){
+                        prswap_sta++;
+                        if(prswap_sta == STATE_WAIT_PS_READY){
                             PD_Ctl.PD_State = STA_SINK_CONNECT;
-                        }
-                        else{
-                            src_det_en = true;
+                        }else{
                             PD_Ctl.PD_State = STA_IDLE;
                         }
-                        
+                    }else{
+                        PD_Ctl.PD_State = STA_TX_DR_SWAP; 
                     }
                     PD_Ctl.PD_Comm_Timer = 0;
                 }

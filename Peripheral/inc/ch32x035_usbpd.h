@@ -342,6 +342,7 @@ typedef enum
     STA_TX_HRST,                                                                /* 32: Send hardware reset */
     STA_PHY_RST,                                                                /* 33: PHY reset */
     STA_APD_IDLE_WAIT,                                                          /* 34: Waiting for the adapter to become idle */
+    STA_DET_CHARGING,
 } CC_STATUS;
 
 /******************************************************************************/

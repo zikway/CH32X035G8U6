@@ -37,7 +37,6 @@
 #define pack_head1      0x05
 #define type1           0x02
 volatile uint32_t mSysTick;   //1ms
-bool charger_in = false;
 
 void TIM1_Init(void)
 {
@@ -103,29 +102,10 @@ int main(void)
     logd_b("MODEL, VERSION:%s,V%x\n",DEFAULT_MODEL,SW_VERSION);
     gpad_board_init();
     gpad_init();
-    if(charger_in){
-        pd_mode = SRC;
-    }else{
-        pd_mode = SNK;
-    }
     PD_Init();
     while(1)
     {
-        static uint8_t charging_pre = -1;
         gpad_handle();
-
-        if(charging_pre != charger_in){
-            charging_pre = charger_in;
-            //TODO: 使用PRSWAP切换模式
-            logi("charger: %d\n", charger_in);
-            if(charger_in){
-                PD_Ctl.PD_State = STA_TX_PR_SWAP;
-                src_det_en = false;
-            }else{
-                pd_mode = SNK;
-                PD_PHY_Reset();
-            }
-        }
         /* Get the calculated timing interval value */
         TIM_ITConfig( TIM1, TIM_IT_Update , DISABLE );
         Tmr_Ms_Dlt = Tim_Ms_Cnt - Tmr_Ms_Cnt_Last;

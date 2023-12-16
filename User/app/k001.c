@@ -29,21 +29,16 @@
 #define CC1_5_1K_PULLDOWN_PIN       PB_04   //输出 高电平 -> 拉低5.1K，此表示从手机端取电
 #define VBUS_EN_PIN                 PB_05   //输出 高电平 -> 手机充电，低电平 -> 停止手机充电
 #define DISCHARGE_PIN               PA_08   //输出 高电平 -> 设备放电，达到快速关机
-#define GET_POWER_FROM_PHONE(en)    hw_gpio_output(CC1_5_1K_PULLDOWN_PIN, en);
-#define CHARG_PHONE(en)             hw_gpio_output(VBUS_EN_PIN, en)
 #define DISCHARGE(en)               hw_gpio_output(DISCHARGE_PIN, en)
-#define CHARGER_DET()               (m_adc_data[CHARGER] > 1000)
-
-extern bool charger_in;
 
 void vbus_on(void)
 {
-    CHARG_PHONE(1);
+    hw_gpio_output(VBUS_EN_PIN, 1);
 }
 
 void vbus_off(void)
 {
-    CHARG_PHONE(0); 
+    hw_gpio_output(VBUS_EN_PIN, 0);
 }
 
 void cc1_5_1k_pulldown(void)
@@ -56,17 +51,29 @@ void cc1_5_1k_pulldown_remove(void)
    hw_gpio_output(CC1_5_1K_PULLDOWN_PIN, 0);
 }
 
+bool phone_plugin(void){
+    return (m_adc_data[PHONE] > 1000);
+}
+
+bool charger_in(void){
+    return (m_adc_data[CHARGER] > 1000);
+}
+
+
 #define CUSTOM_CMD_RGB_CB           0xF1
 #define CUSTOM_CMD_SLEEP            0xF2
 
-void power_manager_init(void)
+void pd_hw_init(void)
 {
     hw_gpio_cfg_output(CC1_5_1K_PULLDOWN_PIN);
     hw_gpio_cfg_output(VBUS_EN_PIN);
-    hw_gpio_cfg_output(DISCHARGE_PIN);
-
     cc1_5_1k_pulldown();
-    CHARG_PHONE(0); //默认关闭给手机充电
+    vbus_off();
+}
+
+void power_manager_init(void)
+{
+    hw_gpio_cfg_output(DISCHARGE_PIN);
     DISCHARGE(0);
 }
 
@@ -78,7 +85,6 @@ void power_manager_handle(void)
     if(mSysTick -t > 10)
     {
         t = mSysTick;
-        charger_in = CHARGER_DET();
         //手机拔出后，再把充电器的情况，快速放电,防止PD工作
         if(pd_mode == SRC){
             if(!det_cc_disconnected){
@@ -87,7 +93,7 @@ void power_manager_handle(void)
                 }
             }else{ //detecting cc disconnected
                 if(!cc_connected){
-                    if(!charger_in){
+                    if(!charger_in()){
                         logi("phone disconnected\n");
                         DISCHARGE(1);
                     }else{
@@ -285,20 +291,12 @@ bool zkm_vendor_device_decode(tTrp_handle* cmd_tr,uint8_t *pDat,uint16_t len)
 
 }
 
-void get_charger_status(void)
-{
-    for(int i=0; i<100; i++){
-        hw_adc_scan();
-    }
-    charger_in = CHARGER_DET();
-}
 
 void user_vender_init(void)//weak      2
 {
     logd_r("mstorep->flash_head=%d\n",mstorep->flash_head);
     logd_r("mstorep->sub_mode=%d\n",mstorep->sub_mode);
     logi("%s\n",__func__);
-    get_charger_status();
 }
 
 
