@@ -1067,6 +1067,7 @@ void PD_Main_Proc( )
     /* Receive message processing */
     if( PD_Ctl.Flag.Bit.Msg_Recvd )
     {
+        uint8_t idx = PDO_INDEX_1;
         /* Adapter communication idle timing */
         PD_Ctl.Adapter_Idle_Cnt = 0x00;
         pd_header = PD_Rx_Buf[ 0 ] & 0x1F;
@@ -1082,12 +1083,15 @@ void PD_Main_Proc( )
                 for (var = 1; var <= PDO_Len; ++var)
                 {
                     PD_PDO_Analyse( var, &PD_Rx_Buf[ 2 ], &Current, &Voltage );
+                    if(Voltage == 12000){
+                        idx = var;
+                    }
                     printf("PDO:%d\r\nCurrent:%d mA\r\nVoltage:%d mV\r\n",var,Current,Voltage);
                 }
                 printf("\r\n");
                 /* Different PDO's for different voltages and currents */
                 /* Default application for the first group of PDO, 5V */
-                PDO_Request( PDO_INDEX_1 );
+                PDO_Request( idx );
                 break;
 
             case DEF_TYPE_ACCEPT:
