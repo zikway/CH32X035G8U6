@@ -23,6 +23,8 @@
 #include "RGB1W.h"
 #include "app_command.h"
 
+#include "firfilter.h"
+
 #define PHONE       6 //手機電源VBUS
 #define CHARGER     7 //充電器電源VIN
 
@@ -30,6 +32,9 @@
 #define VBUS_EN_PIN                 PB_05   //输出 高电平 -> 手机充电，低电平 -> 停止手机充电
 #define DISCHARGE_PIN               PA_08   //输出 高电平 -> 设备放电，达到快速关机
 #define DISCHARGE(en)               hw_gpio_output(DISCHARGE_PIN, en)
+
+FIRFilter  filter[2]; //左扳机，右扳机
+
 
 void vbus_on(void)
 {
@@ -57,6 +62,18 @@ bool phone_plugin(void){
 
 bool charger_in(void){
     return (m_adc_data[CHARGER] > 1000);
+}
+
+
+
+
+void hw_user_vendor_adc_scan(uint16_t *adc_date)
+{
+    //摇杆扳机加上fir滤波
+    for(int i=0; i<2; i++){
+        adc_date[4+i] = FIRFilter_Update(&filter[i], adc_date[4+i]);
+    }
+    
 }
 
 
@@ -297,6 +314,10 @@ void user_vender_init(void)//weak      2
     logd_r("mstorep->flash_head=%d\n",mstorep->flash_head);
     logd_r("mstorep->sub_mode=%d\n",mstorep->sub_mode);
     logi("%s\n",__func__);
+    
+    for(int i=0; i<countof(filter); i++){
+        FIRFilter_Init(&filter[i]);
+    }
 }
 
 

@@ -1165,7 +1165,7 @@ void PD_Main_Proc( )
                 break;
 
             default:
-                printf("Unsupported Command\r\n");
+                printf("Unsupported Command :0X%X\r\n", pd_header);
                 break;
         }
 
@@ -1223,7 +1223,7 @@ void PD_SRC_Main_Proc( )
             if( PD_Ctl.PD_Comm_Timer > 159 )
             {
                 PD_Load_Header( 0x00, DEF_TYPE_SRC_CAP );
-                status = PD_Send_Handle(SrcCap_5V3A_Tab, 4 );
+                status = PD_Send_Handle(SinkCap_5V1A_Tab, 4 );
                 if( status == DEF_PD_TX_OK )
                 {
                     PD_Ctl.PD_State = STA_RX_REQ_WAIT;
@@ -1420,6 +1420,29 @@ void PD_SRC_Main_Proc( )
                 Delay_Ms( 1 );
                 PD_Load_Header( 0x00, DEF_TYPE_ACCEPT );
                 PD_Send_Handle( NULL, 0 );
+                break;
+            case DEF_TYPE_VENDOR_DEFINED:
+                /* VDM message handling */
+                if( ( PD_Rx_Buf[ 2 ] & 0xC0 ) == 0 )
+                {
+                    /* REQ */
+                    Delay_Ms( 1 );
+
+                    /* Data to be sent is cached to PD_Tx_Buf */
+                    PD_Load_Header( 0x00, DEF_TYPE_VENDOR_DEFINED );
+
+                    /* Return to NAK */
+                    if( ( PD_Rx_Buf[ 3 ] & 0x60 ) == 0 )
+                    {
+                        PD_Ctl.Flag.Bit.VDM_Version = 0;
+                    }
+                    else
+                    {
+                        PD_Ctl.Flag.Bit.VDM_Version = 1;
+                    }
+                    PD_Rx_Buf[ 2 ] |= 0x80;
+                    PD_Send_Handle( &PD_Rx_Buf[ 2 ], 4 );
+                }
                 break;
 
             default:
