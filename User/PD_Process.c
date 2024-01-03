@@ -16,6 +16,7 @@
 #include <stdbool.h>
 #include "hw_debug.h"
 #include "hw_gpio.h"
+#include "powermanager.h"
 
 void USBPD_IRQHandler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
 
@@ -37,7 +38,6 @@ UINT8  PDO_Len;
 
 bool cc_connected = false; //仅用于SRC模式
 bool pd_mode = SNK;
-bool src_det_en = true;
 
 typedef enum {
     STATE_START_SWAP,
@@ -216,6 +216,7 @@ void PD_PHY_Reset( void )
 {
     printf("PD_PHY_Reset\r\n");
 	if(pd_mode == SNK){
+        cc1_5_1k_pulldown();
     	PD_SINK_Init( );
     	PD_Ctl.Flag.Bit.Stop_Det_Chk = 0;                                     /* PD disconnection detection is enabled by default */
     	PD_Ctl.PD_State = STA_IDLE;                                           /* Set idle state */
@@ -223,7 +224,7 @@ void PD_PHY_Reset( void )
 	}else{
 	    PD_Ctl.Flag.Bit.Msg_Recvd = 0;
 	    PD_Ctl.Msg_ID = 0;
-	    PD_Ctl.Flag.Bit.PD_Version = 1;
+	    PD_Ctl.Flag.Bit.PD_Version = 0;
 	    PD_Ctl.Det_Cnt = 0;
 	    PD_Ctl.Flag.Bit.Connected = 0;
 	    PD_Ctl.PD_Comm_Timer = 0;
@@ -233,6 +234,7 @@ void PD_PHY_Reset( void )
 	    PD_Ctl.Flag.Bit.Stop_Det_Chk = 0;
 	    PD_Ctl.PD_State = STA_IDLE;
 	    PD_Ctl.Flag.Bit.PD_Comm_Succ = 0;
+        cc1_5_1k_pulldown_remove();
 	    PD_SRC_Init( );
 	    PD_Rx_Mode( );
 	}
@@ -964,7 +966,6 @@ void PD_Main_Proc( )
             /* Status: idle */
             if(charger_in()){
                 PD_Ctl.PD_State = STA_TX_PR_SWAP;
-                src_det_en = false;
             }
             break;
         case STA_DISCONNECT:
@@ -998,8 +999,9 @@ void PD_Main_Proc( )
         case STA_RX_PS_RDY_WAIT:
             /* Status: waiting to receive PS_RDY */
             PD_Ctl.PD_Comm_Timer += Tmr_Ms_Dlt;
-            if( PD_Ctl.PD_Comm_Timer > 499 )
+            if( PD_Ctl.PD_Comm_Timer > 1000 )
             {
+                printf("Timeout,STA_TX_SOFTRST\r\n");
                 PD_Ctl.Flag.Bit.Stop_Det_Chk = 0;                         /* Enable connection detection*/
                 PD_Ctl.PD_State = STA_TX_SOFTRST;
                 PD_Ctl.PD_Comm_Timer = 0;
@@ -1008,7 +1010,17 @@ void PD_Main_Proc( )
 
         case STA_RX_PS_RDY:
             /* Status: PS_RDY received */
-            PD_Ctl.PD_State = STA_DET_CHARGING;      
+            PD_Ctl.PD_Comm_Timer = 0;
+            if(prswap_sta == STATE_START_SWAP){
+                printf("go tx ps rdy\r\n");
+                pd_mode = SRC;
+                PD_PHY_Reset();
+	            PD_Ctl.Flag.Bit.PD_Role = 0;
+                vbus_on();
+                PD_Ctl.PD_State = STA_TX_PS_RDY;
+            }else{
+                PD_Ctl.PD_State = STA_DET_CHARGING;
+            }    
             break;
 
         case STA_TX_SOFTRST:
@@ -1048,10 +1060,7 @@ void PD_Main_Proc( )
                     printf("Tx PR Swap\r\n");
                     PD_Ctl.PD_State = STA_RX_PR_SWAP_ACCEPT;
                     PD_Ctl.PD_Comm_Timer = 0;
-                    pd_mode = SRC;
                     prswap_sta = STATE_START_SWAP;
-                    cc1_5_1k_pulldown_remove();
-                    PD_SRC_Init();
                 }
                 else
                 {
@@ -1060,6 +1069,21 @@ void PD_Main_Proc( )
                 }
             }
             break;
+            case STA_RX_PR_SWAP_ACCEPT:
+                if( PD_Ctl.Flag.Bit.Msg_Recvd )
+                {
+                    pd_header = PD_Rx_Buf[ 0 ] & 0x1F;
+                    if( pd_header == DEF_TYPE_ACCEPT )
+                    {
+                        PD_Rx_Mode( );
+                        PD_Ctl.Flag.Bit.Msg_Recvd = 0;
+                        PD_Ctl.PD_BusIdle_Timer = 0;                                      /* Idle time cleared */
+                        printf("Rx PR Swap Accept\r\n");
+                        PD_Ctl.PD_State = STA_RX_PS_RDY_WAIT;
+                    }
+                }
+                PD_Ctl.PD_Comm_Timer = 0;
+                break;
         default:
             break;
     }
@@ -1229,17 +1253,14 @@ void PD_SRC_Main_Proc( )
                     PD_Ctl.PD_State = STA_RX_REQ_WAIT;
                     printf("Send Source Cap Successfully\r\n");
                 }else{
-                    if(phone_plugin()){
-                        if( ++PD_Ctl.Err_Op_Cnt > 2 ){
-                        //手机连上了，1秒内连不上PD,说明PD协议不通的。这个情况切换到SINK模式
-                            logi("Unspurrort PD Phone plugin, switch to SINK MODE \r\n");
-                            pd_mode = SNK;
-                            vbus_off();
-                            cc1_5_1k_pulldown();
-                            PD_PHY_Reset( );
-                            PD_Ctl.Err_Op_Cnt = 0;
-                        }
-        
+                    if( ++PD_Ctl.Err_Op_Cnt > 2 ){
+                    //手机连上了，1秒内连不上PD,说明PD协议不通的。这个情况切换到SINK模式
+                        logi("Unspurrort PD Phone plugin, switch to SINK MODE \r\n");
+                        pd_mode = SNK;
+                        vbus_off();
+                        cc1_5_1k_pulldown();
+                        PD_PHY_Reset( );
+                        PD_Ctl.Err_Op_Cnt = 0;
                     }
                 }
                 PD_Ctl.PD_Comm_Timer = 0;
@@ -1283,11 +1304,10 @@ void PD_SRC_Main_Proc( )
                 if( status == DEF_PD_TX_OK )
                 {
                     printf("PS ready\r\n");
-                    src_det_en = true;      
                     if(prswap_sta < STATE_PS_SWAP_END){
                         prswap_sta++;
                         if(prswap_sta == STATE_WAIT_PS_READY){
-                            PD_Ctl.PD_State = STA_SINK_CONNECT;
+                            PD_Ctl.PD_State = STA_TX_SRC_CAP;
                         }else{
                             PD_Ctl.PD_State = STA_IDLE;
                         }

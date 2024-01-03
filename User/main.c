@@ -116,7 +116,6 @@ int main(void)
         {
             PD_Ctl.Det_Timer = 0;
             if(pd_mode == SRC){
-                if(src_det_en)
                 PD_SRC_Det_Proc();
             }else{
                 PD_Det_Proc();
