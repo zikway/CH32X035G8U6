@@ -15,7 +15,7 @@ void sdk_api_set_reset_reson(uint8_t reson)
 }
 void  sdk_api_boot(void)
 {
-
+	NVIC_SystemReset();
 }
 void sdk_api_reset(void)
 {

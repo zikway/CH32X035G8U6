@@ -108,6 +108,10 @@ ________________________________________________________________________________
         #define JOYSTICK_CAl_END_KEY                (HW_KEY_START | HW_KEY_SELECT)
         #define APP_JOYSTICK_ADC_MAX                4096
 
+        #define MCU_DEV_UPGRADE_TYPE                MCU_UPGRADE_CHXXX
+
+        #define MCU_DEV_UPGRADE_TYPE                MCU_UPGRADE_CHXXX
+
         #define DEFAULT_MODEL						"ZJ-K001"
         #define DEFAULT_NAME			            "K001"
         #define SW_VERSION                          0x11
