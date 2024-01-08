@@ -44,21 +44,29 @@ ________________________________________________________________________________
         #define KEY_Y_GPIO                  PB_06
         #define KEY_X_GPIO                  PB_02
 
-        #define KEY_UP_GPIO                 PA_23
-        #define KEY_DOWN_GPIO               PA_22
-        #define KEY_LEFT_GPIO               PA_20
-        #define KEY_RIGHT_GPIO              PC_06
+        #define EN_PIN                       PA_16
+    //    #define KEY_UP_GPIO                 PA_23
+    //     #define KEY_DOWN_GPIO               PA_22
+    //     #define KEY_LEFT_GPIO               PA_20
+    //     #define KEY_RIGHT_GPIO              PC_06
 
-        #define KEY_M1_GPIO                 PA_12
+       // #define KEY_M1_GPIO                 PA_12
         #define KEY_M2_GPIO                 PA_10
-        #define KEY_L1_GPIO                 PA_18     //LB
+        //#define KEY_L1_GPIO                 PA_18     //LB
         #define KEY_M4_GPIO                 PB_10     //TURBO
         #define KEY_L3_GPIO                 PA_15     //L3
         #define KEY_R3_GPIO                 PA_09     //R3
         #define KEY_R1_GPIO                 PB_11     //RB
         #define KEY_START_GPIO               PB_09     //菜单键
-        #define KEY_CAPTURE_GPIO             PA_17    //截图
-        #define KEY_SELECT_GPIO             PA_19     //视窗
+        // #define KEY_CAPTURE_GPIO             PA_17    //截图
+        // #define KEY_SELECT_GPIO             PA_19     //视窗
+
+        #define MATRIX_KEY_IN_GPIO          {PA_17,PA_18}
+        #define MATRIX_KEY_OUT_GPIO         {PA_19,PA_20,PB_07,PC_06}
+         #define KEY_LOOKUP                  {\
+            HW_KEY_SELECT, HW_KEY_CAPTURE,   HW_KEY_L1,      HW_KEY_M1,      \
+             HW_KEY_UP, HW_KEY_DOWN,   HW_KEY_LEFT,      HW_KEY_RIGHT,      \
+             }
 
         #define HW_ADC_MAP_NUM  8
         //lx,
@@ -102,10 +110,10 @@ ________________________________________________________________________________
         #define SET_IIC_SCL_LOW             GPIOA->BCR |= 1<<13;
         #define GET_IIC_SDA_DATA            (GPIOA->INDR & (1<<14))
         
-        //  #define HW_PWM_MAP {\
-        // 		{PA_00, pwm_timer2,pwm_ch1},\
-        //         {PA_01, pwm_timer2,pwm_ch2},\
-        // 	}
+         #define HW_PWM_MAP {\
+        		{PA_22, pwm_timer2,pwm_ch2 },\     
+                {PA_23, pwm_timer2,pwm_ch3 },\              
+        	}
     #endif
 
     #ifndef STORE_STRUCT_DEF

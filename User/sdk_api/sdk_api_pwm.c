@@ -35,11 +35,14 @@ bool sdk_api_pwm_init(const pin_map_t* p_map,uint32_t freq, uint8_t duty)
 	TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_TimeBaseInit( TIM2, &TIM_TimeBaseInitStructure);
 
-  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-
-	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+	//TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+	TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
 	TIM_OCInitStructure.TIM_Pulse = duty;
-	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
+	//TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
+	TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
+   // TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
+    TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Set; 
 	if(i==pwm_ch1){
 	    TIM_OC1Init( TIM2, &TIM_OCInitStructure );
 	}else if(i==pwm_ch2){
@@ -62,7 +65,7 @@ bool sdk_api_pwm_init(const pin_map_t* p_map,uint32_t freq, uint8_t duty)
 	}
 	TIM_ARRPreloadConfig( TIM2, ENABLE );
 	TIM_Cmd( TIM2, ENABLE );
-	printf("pwm init\r\n");
+	printf("pwm=%d init\r\n",i);
     return 1;
 }
 

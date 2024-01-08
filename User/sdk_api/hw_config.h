@@ -83,11 +83,12 @@ ________________________________________________________________________________
         #define UART_LONG_CMD_MAX                   0x220
         #define UART_RX_BUFF_LEN                    UART_LONG_CMD_MAX
         #define ZKM_VERDOR_ENABLED                      1
-
+       // #define MATRIX_ACTIVE                       1
         #define APP_RGB_ENABLED                     1
         #define APP_RGB_NUMS                        1
         #define BREATH_TRIANGLE
-        #define APP_RGB_CMD_ENABLED                 1       
+        #define APP_RGB_CMD_ENABLED                 1  
+        #define APP_GAMEPAD_ENABLED                 1   
         // #define HW_IIC_ENABLED                      1
         // #define  IIC_DELAY                          __NOP();//默认IIC为400KHZ
         // #define APP_IMU_ENABLED                     1
@@ -102,12 +103,14 @@ ________________________________________________________________________________
         #define APP_TRIGGER_CAL_DEADZONE            5
         #define APP_TRIGGER_CAL_SIDE_DEADZONE       14
 
+        #define APP_TRIGGER_CAL_SIDE_DEADZONE       5
+        #define HW_MOTOR_ENABLED                   1
         #define JOYSTICK_CAl_END_KEY                (HW_KEY_START | HW_KEY_SELECT)
         #define APP_JOYSTICK_ADC_MAX                4096
 
         #define DEFAULT_MODEL						"ZJ-K001"
         #define DEFAULT_NAME			            "K001"
-        #define SW_VERSION                          0x10
+        #define SW_VERSION                          0x11
     #endif
 #endif
 /*******************************************************************************************************************

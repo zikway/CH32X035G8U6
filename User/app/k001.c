@@ -217,20 +217,17 @@ const pin_t wake_pin[] = {
     KEY_Y_GPIO      ,
     KEY_X_GPIO      ,
 
-    KEY_UP_GPIO     ,
-    KEY_DOWN_GPIO   ,
-    KEY_LEFT_GPIO   ,
-    KEY_RIGHT_GPIO  ,
+    PA_17           ,
+    PA_18           ,
 
-    KEY_M1_GPIO     ,
+    KEY_M4_GPIO     ,
     KEY_M2_GPIO     ,
-    KEY_L1_GPIO     ,
     KEY_L3_GPIO     ,
     KEY_R3_GPIO     ,
     KEY_R1_GPIO     ,
     KEY_START_GPIO  ,
-    KEY_CAPTURE_GPIO,
-    KEY_SELECT_GPIO ,
+    //KEY_CAPTURE_GPIO,
+    //KEY_SELECT_GPIO ,
 };
 
 void Wakeup_Cfg(pin_t pin)
@@ -293,12 +290,20 @@ bool zkm_vendor_host_decode(tTrp_handle* cmd_tr,uint8_t *buf,uint16_t len)
 }
 bool zkm_vendor_device_decode(tTrp_handle* cmd_tr,uint8_t *pDat,uint16_t len)
 { 
-      bool ret = false;
-//  logd("zkm_decode_h:");dumpd(pDat,len);
+    bool ret = false;
+    logd("zkm_decode_h:");dumpd(pDat,len);
     switch (pDat[2]){
 
     case CUSTOM_CMD_SLEEP:
         //cfg wakeup pin
+        hw_gpio_cfg_output(PA_19);
+        hw_gpio_output(PA_19,0);
+        hw_gpio_cfg_output(PA_20);
+        hw_gpio_output(PA_20,0);
+        hw_gpio_cfg_output(PB_07);
+        hw_gpio_output(PB_07,0);
+        hw_gpio_cfg_output(PC_06);
+        hw_gpio_output(PC_06,0);
         Sleep_Wakeup_Cfg();
         MCU_Sleep_Wakeup_Operate();
         ret = true;
@@ -307,27 +312,60 @@ bool zkm_vendor_device_decode(tTrp_handle* cmd_tr,uint8_t *pDat,uint16_t len)
 	return ret;
 
 }
+void gamepade_moror_handle(void)
+{
+    bool ret = true;
+    bool en = false; //所有类型的马达都未工作
+	gamepad_motor_t s_gamepad_motor;
+	static timer_t motor_timer;
+	if(mSysTick - motor_timer >= 16){ //设定为16是因为swich主机下,有可能有50ms间隔的震动
+		motor_timer = mSysTick;
 
+		if(m_motor_sync){
+			for(int i=0;i<APP_MOTOR_MAX;i++){
+				s_gamepad_motor.strong[i] =m_gamepad_motor.strong[i];
+			}
+			#if HW_MOTOR_ENABLED			//实际马达震动调整曲线, TODO APP_MOTOR_ENABLED宏定义修改了,需要适配
+			if(hw_motor_enable){
+				uint8_t motor_l,motor_r;
+				hw_set_motor(APP_MOTOR_BIG_LEFT, s_gamepad_motor.strong[0]);
+				hw_set_motor(APP_MOTOR_BIG_RIGHT, s_gamepad_motor.strong[1]);
+                logd_r("s_gamepad_motor.strong1[0]=%d s_gamepad_motor.strong1[1]=%d \r\n",s_gamepad_motor.strong[0],s_gamepad_motor.strong[1]);
+				en = true;
+                ret &= true;
+			}
+			#endif
+			if(ret && en) m_motor_sync--;
+		}
+	}
+}
 
 void user_vender_init(void)//weak      2
 {
+    hw_gpio_output(EN_PIN,1);
+    //  TIM2->CH2CVR=255;
+    //  TIM2->CH3CVR=255;
     logd_r("mstorep->flash_head=%d\n",mstorep->flash_head);
     logd_r("mstorep->sub_mode=%d\n",mstorep->sub_mode);
     logi("%s\n",__func__);
+<<<<<<< HEAD
     
     for(int i=0; i<countof(filter); i++){
         FIRFilter_Init(&filter[i]);
     }
+=======
+    //TIM1_Dead_Time_Init(100, 48 - 1, 50);
+>>>>>>> 1f2114e (适配urat和pwm)
 }
 
 
 void hw_user_vender_init(void)
 {
+    hw_gpio_cfg_output(EN_PIN);
     power_manager_init();
 }
-void hw_user_vender_deinit(void)
+void user_vender_deinit(void)
 {
-
 }
 
 
@@ -369,12 +407,12 @@ void app_joystick_weak_cal_event(app_joystick_cal_t event)
         switch (event)
         {
         case APP_JOYSTICK_CAL_MID:
-             buff = APP_JOYSTICK_CAL_MID;
-             app_send_command(&mTrp_uart,CMD_CALIBRATION, &buff, 1);
+            buff = APP_JOYSTICK_CAL_MID;
+            app_send_command(&mTrp_uart,CMD_CALIBRATION, &buff, 1);
             break;
         case APP_JOYSTICK_CAL_SUCCEED:
-             buff = APP_JOYSTICK_CAL_SUCCEED;
-             app_send_command(&mTrp_uart,CMD_CALIBRATION, &buff,1);
+            buff = APP_JOYSTICK_CAL_SUCCEED;
+            app_send_command(&mTrp_uart,CMD_CALIBRATION, &buff,1);
             break;
         case APP_JOYSTICK_CAL_FAILED:
             buff = APP_JOYSTICK_CAL_FAILED;
