@@ -304,6 +304,7 @@ bool zkm_vendor_device_decode(tTrp_handle* cmd_tr,uint8_t *pDat,uint16_t len)
         hw_gpio_output(PB_07,0);
         hw_gpio_cfg_output(PC_06);
         hw_gpio_output(PC_06,0);
+        app_rgb_deinit();
         Sleep_Wakeup_Cfg();
         MCU_Sleep_Wakeup_Operate();
         ret = true;
@@ -328,10 +329,14 @@ void gamepade_moror_handle(void)
 			#if HW_MOTOR_ENABLED			//实际马达震动调整曲线, TODO APP_MOTOR_ENABLED宏定义修改了,需要适配
 			if(hw_motor_enable){
 				uint8_t motor_l,motor_r;
-				hw_set_motor(APP_MOTOR_BIG_LEFT, s_gamepad_motor.strong[0]);
-				hw_set_motor(APP_MOTOR_BIG_RIGHT, s_gamepad_motor.strong[1]);
+                if(s_gamepad_motor.strong[0]<85){
+                   s_gamepad_motor.strong[0] = 0;
+                   s_gamepad_motor.strong[1] = 1;  
+                }   
+                hw_set_motor(APP_MOTOR_BIG_LEFT, s_gamepad_motor.strong[0]);
+                hw_set_motor(APP_MOTOR_BIG_RIGHT, s_gamepad_motor.strong[1]);
                 logd_r("s_gamepad_motor.strong1[0]=%d s_gamepad_motor.strong1[1]=%d \r\n",s_gamepad_motor.strong[0],s_gamepad_motor.strong[1]);
-				en = true;
+                en = true;
                 ret &= true;
 			}
 			#endif
@@ -348,14 +353,10 @@ void user_vender_init(void)//weak      2
     logd_r("mstorep->flash_head=%d\n",mstorep->flash_head);
     logd_r("mstorep->sub_mode=%d\n",mstorep->sub_mode);
     logi("%s\n",__func__);
-<<<<<<< HEAD
     
     for(int i=0; i<countof(filter); i++){
         FIRFilter_Init(&filter[i]);
     }
-=======
-    //TIM1_Dead_Time_Init(100, 48 - 1, 50);
->>>>>>> 1f2114e (适配urat和pwm)
 }
 
 
