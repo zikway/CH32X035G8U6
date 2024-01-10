@@ -128,10 +128,10 @@ int main(void)
     gpad_board_init();
     gpad_init();
     PD_Init();
-	IWDG_Feed_Init( IWDG_Prescaler_32, 4000 );   // 2.7s IWDG reset
+	// IWDG_Feed_Init( IWDG_Prescaler_32, 4000 );   // 2.7s IWDG reset
     while(1)
     {
-        IWDG_ReloadCounter();	//Feed dog
+        // IWDG_ReloadCounter();	//Feed dog
         gpad_handle();
         /* Get the calculated timing interval value */
         TIM_ITConfig( TIM1, TIM_IT_Update , DISABLE );
