@@ -35,7 +35,7 @@ uint16_t IapReceLen;
 uint16_t m_BackupAppBinLenth;
 uint16_t m_BackupAppBinSum;
 uint16_t m_send_len;
-
+extern uint32_t end_time;
 
 
 
@@ -457,6 +457,7 @@ void UART_Rx_Deal(void)
         s = RecData_Deal();
         if(s== ERR_SCUESS){
             IapRxTimeout = 0;
+            end_time = 800000;
         }else{
         }
     }

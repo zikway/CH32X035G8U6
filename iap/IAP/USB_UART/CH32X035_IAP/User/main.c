@@ -26,7 +26,7 @@
 #include "iap.h"
 #include "stdbool.h"
 uint32_t IapRxTimeout = 0;
-
+uint32_t end_time = 80000; //约等于200多ms
 /*********************************************************************
  * @fn      IAP_2_APP
  *
@@ -87,7 +87,7 @@ int main(void)
     USART2_CFG(1000000);
     while(1)
     {
-        if(IapRxTimeout++ > 80000) { //约等于200多ms
+        if(IapRxTimeout++ > end_time) { //约等于200多ms
             End_Flag = true;
         } 
         if( USART_GetFlagStatus(USART2, USART_FLAG_RXNE) != RESET) {            
