@@ -103,7 +103,6 @@ ________________________________________________________________________________
         #define APP_TRIGGER_CAL_DEADZONE            5
         #define APP_TRIGGER_CAL_SIDE_DEADZONE       14
 
-        #define APP_TRIGGER_CAL_SIDE_DEADZONE       5
         #define HW_MOTOR_ENABLED                   1
         #define JOYSTICK_CAl_END_KEY                (HW_KEY_START | HW_KEY_SELECT)
         #define APP_JOYSTICK_ADC_MAX                4096

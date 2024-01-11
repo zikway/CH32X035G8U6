@@ -123,7 +123,10 @@ int main(void)
     Delay_Init();
     TIM1_Init();
     USART_Printf_Init(1000000);
-
+    u32 RST_CAUSE=0;
+    RST_CAUSE=RCC->RSTSCKR;
+    RCC->RSTSCKR|=(1<<24);//clear flag
+    logd_b("RSTSCKR:%x\r\n",RST_CAUSE);
     logd_b("MODEL, VERSION:%s,V%x\n",DEFAULT_MODEL,SW_VERSION);
     gpad_board_init();
     gpad_init();
