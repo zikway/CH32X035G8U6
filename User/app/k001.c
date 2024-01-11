@@ -61,7 +61,7 @@ bool phone_plugin(void){
 }
 
 bool charger_in(void){
-    return (m_adc_data[CHARGER] > 1000);
+    return (m_adc_data[CHARGER] > 1340);
 }
 
 
