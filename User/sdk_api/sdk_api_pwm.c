@@ -29,8 +29,8 @@ bool sdk_api_pwm_init(const pin_map_t* p_map,uint32_t freq, uint8_t duty)
      GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
      GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	TIM_TimeBaseInitStructure.TIM_Period = 255;
-	TIM_TimeBaseInitStructure.TIM_Prescaler = 48-1;
+	TIM_TimeBaseInitStructure.TIM_Period = 255-1;
+	TIM_TimeBaseInitStructure.TIM_Prescaler = 192000-1;
 	TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 	TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
 	TIM_TimeBaseInit( TIM2, &TIM_TimeBaseInitStructure);
@@ -89,13 +89,13 @@ uint16_t sdk_api_pwm_set_pwm_duty(const pin_map_t* p_map, uint8_t duty)
 	 	break;
 	 	case pwm_timer2:
 	 	if(pwm_ch1 == i){
-	 		TIM2->CH1CVR=duty;
+	 		TIM2->CH1CVR=duty*4;
 	 	}else if(pwm_ch2 == i){
-	 		TIM2->CH2CVR=duty;
+	 		TIM2->CH2CVR=duty*4;
 	 	}else if(pwm_ch3 == i){
-	 		TIM2->CH3CVR=duty;
+	 		TIM2->CH3CVR=duty*4;
 	 	}else if(pwm_ch4 == i){
-	 		TIM2->CH4CVR=duty;
+	 		TIM2->CH4CVR=duty*4;
 	 	}
 	 	break;
 	 	case pwm_timer3:

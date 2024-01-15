@@ -224,7 +224,6 @@ const pin_t wake_pin[] = {
     KEY_M2_GPIO     ,
     KEY_L3_GPIO     ,
     KEY_R3_GPIO     ,
-    KEY_R1_GPIO     ,
     KEY_START_GPIO  ,
     //KEY_CAPTURE_GPIO,
     //KEY_SELECT_GPIO ,
@@ -329,13 +328,9 @@ void gamepade_moror_handle(void)
 			#if HW_MOTOR_ENABLED			//实际马达震动调整曲线, TODO APP_MOTOR_ENABLED宏定义修改了,需要适配
 			if(hw_motor_enable){
 				uint8_t motor_l,motor_r;
-                if(s_gamepad_motor.strong[0]<85){
-                   s_gamepad_motor.strong[0] = 0;
-                   s_gamepad_motor.strong[1] = 1;  
-                }   
                 hw_set_motor(APP_MOTOR_BIG_LEFT, s_gamepad_motor.strong[0]);
                 hw_set_motor(APP_MOTOR_BIG_RIGHT, s_gamepad_motor.strong[1]);
-                logd_r("s_gamepad_motor.strong1[0]=%d s_gamepad_motor.strong1[1]=%d \r\n",s_gamepad_motor.strong[0],s_gamepad_motor.strong[1]);
+                logd_r("s_gamepad_motor.strong1[0]=%d s_gamepad_motor.strong1[1]=%d \r\n",m_gamepad_motor.strong[0],m_gamepad_motor.strong[1]);
                 en = true;
                 ret &= true;
 			}
