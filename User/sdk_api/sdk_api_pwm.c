@@ -21,54 +21,100 @@ bool sdk_api_pwm_init(const pin_map_t* p_map,uint32_t freq, uint8_t duty)
 	 uint32_t j;
 	 i=p_map->attribute;
 	 j=p_map->peripheral;
-	 RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE );
 
-	 RCC_APB2PeriphClockCmd(get_gpio_rcc(p_map->pin), ENABLE);
-     GPIO_InitStructure.GPIO_Pin = get_gpio_pin(p_map->pin);
-     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-     GPIO_Init(get_gpio_port(p_map->pin), &GPIO_InitStructure);
+	if(j == pwm_timer1){
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
+		GPIO_PinRemapConfig(GPIO_PartialRemap2_TIM1,ENABLE);
 
-	TIM_TimeBaseInitStructure.TIM_Period = 255-1;
-	TIM_TimeBaseInitStructure.TIM_Prescaler = 192000-1;
-	TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-	TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInit( TIM2, &TIM_TimeBaseInitStructure);
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE );
+		RCC_APB2PeriphClockCmd(get_gpio_rcc(p_map->pin), ENABLE);
+		GPIO_InitStructure.GPIO_Pin = get_gpio_pin(p_map->pin);
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+		GPIO_Init(get_gpio_port(p_map->pin), &GPIO_InitStructure);
 
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-	TIM_OCInitStructure.TIM_Pulse = duty;
-	if(PWM_TURN){
-		TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
-		TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
-		 TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Set;
-	}else{
+		TIM_TimeBaseInitStructure.TIM_Period = 255-1;
+		TIM_TimeBaseInitStructure.TIM_Prescaler = freq-1;
+		TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+		TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
+		TIM_TimeBaseInit( TIM1, &TIM_TimeBaseInitStructure);
+
+		TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
 		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+		//TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
+		TIM_OCInitStructure.TIM_Pulse = duty;
 		TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
+		//TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
 		TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
-	}
+		//TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Set; 
+		if(i==pwm_ch1){
+			TIM_OC1Init( TIM1, &TIM_OCInitStructure );
+		}else if(i==pwm_ch2){
+			TIM_OC2Init( TIM1, &TIM_OCInitStructure );
+		}else if(i==pwm_ch3){
+			TIM_OC3Init( TIM1, &TIM_OCInitStructure );
+		}else if(i==pwm_ch4){
+			TIM_OC4Init( TIM1, &TIM_OCInitStructure );
+		}
 
-	if(i==pwm_ch1){
-	    TIM_OC1Init( TIM2, &TIM_OCInitStructure );
-	}else if(i==pwm_ch2){
-	    TIM_OC2Init( TIM2, &TIM_OCInitStructure );
-	}else if(i==pwm_ch3){
-	    TIM_OC3Init( TIM2, &TIM_OCInitStructure );
-	}else if(i==pwm_ch4){
-	    TIM_OC4Init( TIM2, &TIM_OCInitStructure );
-	}
+		TIM_CtrlPWMOutputs(TIM1, ENABLE );
+		if(i==pwm_ch1){
+			TIM_OC1PreloadConfig( TIM1, TIM_OCPreload_Disable );
+		}else if(i==pwm_ch2){
+			TIM_OC2PreloadConfig( TIM1, TIM_OCPreload_Disable );
+		}else if(i==pwm_ch3){
+			TIM_OC2PreloadConfig( TIM1, TIM_OCPreload_Disable );
+		}else if(i==pwm_ch4){
+			TIM_OC2PreloadConfig( TIM1, TIM_OCPreload_Disable );
+		}
+		TIM_ARRPreloadConfig( TIM1, ENABLE );
+		TIM_Cmd( TIM1, ENABLE );
 
-	TIM_CtrlPWMOutputs(TIM2, ENABLE );
-	if(i==pwm_ch1){
-	    TIM_OC1PreloadConfig( TIM2, TIM_OCPreload_Disable );
-	}else if(i==pwm_ch2){
-	    TIM_OC2PreloadConfig( TIM2, TIM_OCPreload_Disable );
-	}else if(i==pwm_ch3){
-	    TIM_OC2PreloadConfig( TIM2, TIM_OCPreload_Disable );
-	}else if(i==pwm_ch4){
-	    TIM_OC2PreloadConfig( TIM2, TIM_OCPreload_Disable );
+	}else if(j == pwm_timer2){
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE );
+		RCC_APB2PeriphClockCmd(get_gpio_rcc(p_map->pin), ENABLE);
+		GPIO_InitStructure.GPIO_Pin = get_gpio_pin(p_map->pin);
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+		GPIO_Init(get_gpio_port(p_map->pin), &GPIO_InitStructure);
+
+		TIM_TimeBaseInitStructure.TIM_Period = 255-1;
+		TIM_TimeBaseInitStructure.TIM_Prescaler = 192000-1;
+		TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+		TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
+		TIM_TimeBaseInit( TIM2, &TIM_TimeBaseInitStructure);
+
+		TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
+		//TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+		TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
+		TIM_OCInitStructure.TIM_Pulse = duty;
+		//TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
+		TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
+	// TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
+		TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Set; 
+		if(i==pwm_ch1){
+			TIM_OC1Init( TIM2, &TIM_OCInitStructure );
+		}else if(i==pwm_ch2){
+			TIM_OC2Init( TIM2, &TIM_OCInitStructure );
+		}else if(i==pwm_ch3){
+			TIM_OC3Init( TIM2, &TIM_OCInitStructure );
+		}else if(i==pwm_ch4){
+			TIM_OC4Init( TIM2, &TIM_OCInitStructure );
+		}
+
+		TIM_CtrlPWMOutputs(TIM2, ENABLE );
+		if(i==pwm_ch1){
+			TIM_OC1PreloadConfig( TIM2, TIM_OCPreload_Disable );
+		}else if(i==pwm_ch2){
+			TIM_OC2PreloadConfig( TIM2, TIM_OCPreload_Disable );
+		}else if(i==pwm_ch3){
+			TIM_OC2PreloadConfig( TIM2, TIM_OCPreload_Disable );
+		}else if(i==pwm_ch4){
+			TIM_OC2PreloadConfig( TIM2, TIM_OCPreload_Disable );
+		}
+		TIM_ARRPreloadConfig( TIM2, ENABLE );
+		TIM_Cmd( TIM2, ENABLE );
 	}
-	TIM_ARRPreloadConfig( TIM2, ENABLE );
-	TIM_Cmd( TIM2, ENABLE );
 	printf("pwm=%d init\r\n",i);
     return 1;
 }
@@ -116,6 +162,30 @@ uint16_t sdk_api_pwm_set_pwm_duty(const pin_map_t* p_map, uint8_t duty)
 	 }
     return true;
 }
+
+bool sdk_api_pwm_set_pwm_freq(const pin_map_t* p_map, uint32_t hz)
+{
+    uint32_t i;
+	uint32_t j;
+	uint32_t frequency;
+    i=p_map->attribute;
+    j=p_map->peripheral;
+	frequency=48000000/250/hz;
+	 switch(j){
+	 	case pwm_timer1:
+	 		TIM1->PSC=frequency;
+	 	break;
+	 	case pwm_timer2:
+	 		TIM2->PSC=frequency;
+	 	break;
+	 	case pwm_timer3:
+	 		TIM3->PSC=frequency;
+	 	break;
+	 }
+    return true;
+    return true;
+}
+
 
 bool sdk_api_pwm_deinit(const pin_map_t* p_map)
 {
