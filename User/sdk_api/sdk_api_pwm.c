@@ -27,7 +27,7 @@ bool sdk_api_pwm_init(const pin_map_t* p_map,uint32_t freq, uint8_t duty)
      GPIO_InitStructure.GPIO_Pin = get_gpio_pin(p_map->pin);
      GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
      GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-     GPIO_Init(GPIOA, &GPIO_InitStructure);
+     GPIO_Init(get_gpio_port(p_map->pin), &GPIO_InitStructure);
 
 	TIM_TimeBaseInitStructure.TIM_Period = 255-1;
 	TIM_TimeBaseInitStructure.TIM_Prescaler = 192000-1;
@@ -36,13 +36,17 @@ bool sdk_api_pwm_init(const pin_map_t* p_map,uint32_t freq, uint8_t duty)
 	TIM_TimeBaseInit( TIM2, &TIM_TimeBaseInitStructure);
 
 	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-	//TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-	TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
 	TIM_OCInitStructure.TIM_Pulse = duty;
-	//TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
-	TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
-   // TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
-    TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Set; 
+	if(PWM_TURN){
+		TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
+		TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
+		 TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Set;
+	}else{
+		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
+		TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
+		TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
+	}
+
 	if(i==pwm_ch1){
 	    TIM_OC1Init( TIM2, &TIM_OCInitStructure );
 	}else if(i==pwm_ch2){
@@ -89,13 +93,13 @@ uint16_t sdk_api_pwm_set_pwm_duty(const pin_map_t* p_map, uint8_t duty)
 	 	break;
 	 	case pwm_timer2:
 	 	if(pwm_ch1 == i){
-	 		TIM2->CH1CVR=duty*4;
+	 		TIM2->CH1CVR=duty;
 	 	}else if(pwm_ch2 == i){
-	 		TIM2->CH2CVR=duty*4;
+	 		TIM2->CH2CVR=duty;
 	 	}else if(pwm_ch3 == i){
-	 		TIM2->CH3CVR=duty*4;
+	 		TIM2->CH3CVR=duty;
 	 	}else if(pwm_ch4 == i){
-	 		TIM2->CH4CVR=duty*4;
+	 		TIM2->CH4CVR=duty;
 	 	}
 	 	break;
 	 	case pwm_timer3:

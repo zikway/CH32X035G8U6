@@ -43,7 +43,9 @@ typedef enum {
     pwm_ch_max,
 } pwm_ch_num_type;
 
-
+#ifndef PWM_TURN
+#define PWM_TURN   1
+#endif
 bool sdk_api_pwm_set_low_high_time(const pin_map_t* p_map, uint32_t freq, uint8_t duty);
 bool sdk_api_pwm_init(const pin_map_t* p_map,uint32_t freq, uint8_t duty);
 bool sdk_api_pwm_deinit(const pin_map_t* p_map);
