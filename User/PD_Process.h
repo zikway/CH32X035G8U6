@@ -43,6 +43,10 @@ extern __attribute__ ((aligned(4))) uint8_t PD_Tx_Buf[ 34 ];
 extern bool pd_mode;
 extern bool cc_connected;
 extern bool src_det_en;
+extern bool pd_vol_match;
+extern uint8_t pd_req_vol;
+extern bool pd_ready;
+
 /***********************************************************************************************************************/
 /* Function extensibility */
 extern void PD_Rx_Mode( void );
@@ -61,7 +65,7 @@ extern void PD_Main_Proc( void );
 extern void PD_SRC_Main_Proc( void );
 extern void PD_Request_Analyse( uint8_t pdo_idx, uint8_t *srccap, uint16_t *current );
 extern void PD_PDO_Analyse( uint8_t pdo_idx, uint8_t *srccap, uint16_t *current, uint16_t *voltage );
-
+extern bool PDO_Request( uint8_t pdo_idx );
 extern void vbus_on(void);
 extern void vbus_off(void);
 extern void cc1_5_1k_pulldown(void);

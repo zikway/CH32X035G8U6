@@ -12,6 +12,7 @@
 
 #include "ch32x035.h"
 #include "PIOC_SFR.h"
+#include "hw_config.h"
 
 #define		RGB1W_SFR_ADDR	((uint8_t *)&(PIOC->D8_DATA_REG0))	// RGB1W data buffer start address for SFR mode
 #define		RGB1W_SFR_SIZE	32						// RGB1W data buffer size for SFR mode
@@ -20,7 +21,9 @@
 
 #define		RGB1W_FREQ_CFG	(0x000C*2)	// system frequency config
 
+#ifndef     RGB1W_CYC_48M
 #define		RGB1W_CYC_48M	82		// bit cycle for Fsys=48MHz, 1.71uS/cycle
+#endif
 #define		RGB1W_CYC_24M	28		// bit cycle for Fsys=24MHz, 1.167uS/cycle
 #define		RGB1W_CMD_RAM	0x80	// notice PIOC to send data from RAM
 

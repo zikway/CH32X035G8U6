@@ -9,7 +9,7 @@
  * Attention: This software (modified or not) and binary are used for
  * microcontroller manufactured by Nanjing Qinheng Microelectronics.
  *******************************************************************************/
-
+#include "hw_config.h"
 const unsigned char PIOC_1W_CODE[] =
                 {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x16,0x60,0x00,0x00,0x00,0x00,0x00,0x00,	/* .........`...... */
 				 0x00,0x00,0x0A,0x70,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,	/* ...p............ */
@@ -89,7 +89,7 @@ void RGB1W_Init ( void ) {
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO | RCC_APB2Periph_GPIOC, ENABLE);
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_IO2W, ENABLE);
 
-#if 0  //PC18
+#if defined PIOC_PC18  //PC18
     GPIO_PinRemapConfig(GPIO_Remap_SWJ_Disable, ENABLE);
     GPIO_SetBits(GPIOC, GPIO_Pin_18);
 

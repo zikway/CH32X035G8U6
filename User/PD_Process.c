@@ -17,12 +17,14 @@
 #include "hw_debug.h"
 #include "hw_gpio.h"
 #include "powermanager.h"
-
+#include "hw_config.h"
 void USBPD_IRQHandler(void) __attribute__((interrupt("WCH-Interrupt-fast")));
 
 __attribute__ ((aligned(4))) uint8_t PD_Rx_Buf[ 34 ];                           /* PD receive buffer */
 __attribute__ ((aligned(4))) uint8_t PD_Tx_Buf[ 34 ];                           /* PD send buffer */
-
+#ifndef PD_REQ_VOLTAGE  
+#define PD_REQ_VOLTAGE 5
+#endif
 /******************************************************************************/
 UINT8 PD_Ack_Buf[ 2 ];                                                          /* PD-ACK buffer */
 
@@ -38,7 +40,9 @@ UINT8  PDO_Len;
 
 bool cc_connected = false; //仅用于SRC模式
 bool pd_mode = SNK;
-
+bool pd_vol_match = false;
+uint8_t pd_req_vol = PD_REQ_VOLTAGE;
+bool pd_ready = false;  //pd 模式否则是qc模式
 typedef enum {
     STATE_START_SWAP,
     STATE_WAIT_PS_READY,
@@ -93,17 +97,23 @@ __WEAK void cc1_5_1k_pulldown_remove(void)
 
 __WEAK bool phone_plugin(void)
 {
-    
+    return false;
 }
 
 __WEAK bool charger_in(void)
 {
-    
+    return false;
 }
 
 __WEAK void pd_hw_init(void)
 {
     
+}
+
+// 检查最终申请的VBUs电压是否与申请充电器输出电压匹配
+__WEAK bool vbus_req_vol_match(void)
+{
+    return false;
 }
 
 /*********************************************************************
@@ -215,12 +225,15 @@ void PD_SINK_Init( )
 void PD_PHY_Reset( void )
 {
     printf("PD_PHY_Reset\r\n");
+    //set PD_Ctl to 0
+    memset(&PD_Ctl, 0, sizeof(PD_CONTROL));
 	if(pd_mode == SNK){
         cc1_5_1k_pulldown();
     	PD_SINK_Init( );
     	PD_Ctl.Flag.Bit.Stop_Det_Chk = 0;                                     /* PD disconnection detection is enabled by default */
     	PD_Ctl.PD_State = STA_IDLE;                                           /* Set idle state */
     	PD_Ctl.Flag.Bit.PD_Comm_Succ = 0;
+        PD_Ctl.Err_Op_Cnt = 0;
 	}else{
 	    PD_Ctl.Flag.Bit.Msg_Recvd = 0;
 	    PD_Ctl.Msg_ID = 0;
@@ -809,10 +822,11 @@ UINT8 PD_Send_Handle( UINT8 *pbuf, UINT8 len )
  *
  * @return  none
  */
-void PDO_Request( UINT8 pdo_index )
+bool PDO_Request( UINT8 pdo_index )
 {
     UINT16 Current,Voltage;
     UINT8  status;
+    bool ret = false;
     if ((pdo_index > PDO_Len) || (pdo_index == 0))
     {
         while(1)
@@ -841,6 +855,7 @@ void PDO_Request( UINT8 pdo_index )
 
     if( status == DEF_PD_TX_OK )
     {
+        ret = true;
         PD_Ctl.PD_State = STA_RX_ACCEPT_WAIT;
     }
     else
@@ -849,6 +864,7 @@ void PDO_Request( UINT8 pdo_index )
     }
     PD_Ctl.PD_Comm_Timer = 0;
     PD_Ctl.Flag.Bit.PD_Comm_Succ = 1;
+    return ret;
 }
 
 /*********************************************************************
@@ -989,7 +1005,53 @@ void PD_Main_Proc( )
                 }
                 else
                 {
+                    #if defined QC_SUPPROT
+                    switch(BC1_2Check())
+                    {
+                        case SDP:
+                            printf( " SDP \r\n" );
+                            PD_Ctl.PD_State = STA_IDLE;
+                            
+                                break;
+                        case CDP:
+                            printf( " CDP \r\n" );
+                            PD_Ctl.PD_State = STA_IDLE;
+                            
+                                break;
+                        case DCP:
+                            printf( " DCP \r\n" );
+                            PD_Ctl.PD_State = STA_IDLE;
+                            
+                                break;
+                        case BC1_2:
+                            printf( " BC1_2 \r\n" );
+                            Delay_Ms(50);
+                            PD_Ctl.PD_State = STA_IDLE;
+                            switch (pd_req_vol)
+                            {
+                            case 5:
+                                /* code */
+                                break;
+                            case 9:
+                                QC_Request_9v();
+                                break;
+                            case 12:
+                                QC_Request_12v();
+                                break;
+                            default:
+                                break;
+                            }
+                            Delay_Ms(50);
+                            if(vbus_req_vol_match()){
+                                pd_vol_match = true;
+                            }else{
+                                pd_vol_match = false;
+                            }
+                            break;
+                    }
+                    #else
                     PD_PHY_Reset( );
+                    #endif
                 }
             }
             break;
@@ -1010,6 +1072,11 @@ void PD_Main_Proc( )
 
         case STA_RX_PS_RDY:
             /* Status: PS_RDY received */
+            if(vbus_req_vol_match()){
+                pd_vol_match = true;
+            }else{
+                pd_vol_match = false;
+            }
             PD_Ctl.PD_Comm_Timer = 0;
             if(prswap_sta == STATE_START_SWAP){
                 printf("go tx ps rdy\r\n");
@@ -1107,8 +1174,20 @@ void PD_Main_Proc( )
                 for (var = 1; var <= PDO_Len; ++var)
                 {
                     PD_PDO_Analyse( var, &PD_Rx_Buf[ 2 ], &Current, &Voltage );
-                    if(Voltage == 12000){
-                        idx = var;
+                    switch (pd_req_vol)
+                    {
+                    case 9:
+                        if(Voltage == 9000){
+                            idx = var;
+                        }
+                        break;
+                    case 12:
+                        if(Voltage == 12000){
+                            idx = var;
+                        }
+                        break;
+                    default:
+                        break;
                     }
                     printf("PDO:%d\r\nCurrent:%d mA\r\nVoltage:%d mV\r\n",var,Current,Voltage);
                 }
@@ -1127,6 +1206,7 @@ void PD_Main_Proc( )
             case DEF_TYPE_PS_RDY:
                 /* PS_RDY is received */
                 printf("Success\r\n");
+                pd_ready = true;
                 PD_Ctl.PD_State = STA_RX_PS_RDY;
                 break;
 

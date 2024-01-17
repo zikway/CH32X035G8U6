@@ -68,7 +68,8 @@ ________________________________________________________________________________
 #endif
 
 #if PROJECT_CJ_GAMEPAD
-    #define K001				                1			//CH32X035+JL
+    #define K001				                0			//CH32X035+JL
+    #define X108				                1			//CH32X035+JL
     #define ZKM_SLAVE_ENABLED                   1
     
     //-------------------------------------------------------
@@ -114,6 +115,27 @@ ________________________________________________________________________________
         #define DEFAULT_MODEL						"ZJ-K001"
         #define DEFAULT_NAME			            "K001"
         #define SW_VERSION                          0x17
+    #endif
+    #if X108
+        #define APP_KEY_ENABLED                     1
+        #define UART_CMD_MAX                        72
+        #define UART_LONG_CMD_MAX                   0x220
+        #define UART_RX_BUFF_LEN                    UART_LONG_CMD_MAX
+        #define ZKM_VERDOR_ENABLED                  1
+        
+        #define APP_RGB_ENABLED                     1
+        #define APP_RGB_NUMS                        12
+        #define BREATH_TRIANGLE
+        #define QC_SUPPROT
+        #define PD_REQ_VOLTAGE                      12
+        #define PIOC_PC18
+        #define	RGB1W_CYC_48M	                    58
+        
+        #define MCU_DEV_UPGRADE_TYPE                MCU_UPGRADE_CHXXX
+
+        #define DEFAULT_MODEL						"ZJ-X108"
+        #define DEFAULT_NAME			            "X108"
+        #define SW_VERSION                          0X01
     #endif
 #endif
 /*******************************************************************************************************************

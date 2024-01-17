@@ -45,7 +45,7 @@ bool sdk_api_pwm_init(const pin_map_t* p_map,uint32_t freq, uint8_t duty)
 		TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
 		TIM_OCInitStructure.TIM_Pulse = duty;
 		//TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
-		TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
+		TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;
 	// TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
 		TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Set; 
 		if(i==pwm_ch1){
