@@ -14,63 +14,17 @@ bool sdk_api_pwm_set_low_high_time(const pin_map_t* p_map, uint32_t freq, uint8_
 
 bool sdk_api_pwm_init(const pin_map_t* p_map,uint32_t freq, uint8_t duty)
 {
-     GPIO_InitTypeDef GPIO_InitStructure={0};
-	 TIM_OCInitTypeDef TIM_OCInitStructure={0};
-	 TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure={0};
-	 uint32_t i;
-	 uint32_t j;
-	 i=p_map->attribute;
-	 j=p_map->peripheral;
-
-	if(j == pwm_timer1){
+		GPIO_InitTypeDef GPIO_InitStructure={0};
+		TIM_OCInitTypeDef TIM_OCInitStructure={0};
+		TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure={0};
+		uint32_t i;
+		uint32_t j;
+		i=p_map->attribute;
+		j=p_map->peripheral;
+		#if(REMAPP == 1)
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
-		GPIO_PinRemapConfig(GPIO_PartialRemap2_TIM1,ENABLE);
-
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE );
-		RCC_APB2PeriphClockCmd(get_gpio_rcc(p_map->pin), ENABLE);
-		GPIO_InitStructure.GPIO_Pin = get_gpio_pin(p_map->pin);
-		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
-		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-		GPIO_Init(get_gpio_port(p_map->pin), &GPIO_InitStructure);
-
-		TIM_TimeBaseInitStructure.TIM_Period = 255-1;
-		TIM_TimeBaseInitStructure.TIM_Prescaler = freq-1;
-		TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-		TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
-		TIM_TimeBaseInit( TIM1, &TIM_TimeBaseInitStructure);
-
-		TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-		//TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
-		TIM_OCInitStructure.TIM_Pulse = duty;
-		TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
-		//TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;
-		TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
-		//TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Set; 
-		if(i==pwm_ch1){
-			TIM_OC1Init( TIM1, &TIM_OCInitStructure );
-		}else if(i==pwm_ch2){
-			TIM_OC2Init( TIM1, &TIM_OCInitStructure );
-		}else if(i==pwm_ch3){
-			TIM_OC3Init( TIM1, &TIM_OCInitStructure );
-		}else if(i==pwm_ch4){
-			TIM_OC4Init( TIM1, &TIM_OCInitStructure );
-		}
-
-		TIM_CtrlPWMOutputs(TIM1, ENABLE );
-		if(i==pwm_ch1){
-			TIM_OC1PreloadConfig( TIM1, TIM_OCPreload_Disable );
-		}else if(i==pwm_ch2){
-			TIM_OC2PreloadConfig( TIM1, TIM_OCPreload_Disable );
-		}else if(i==pwm_ch3){
-			TIM_OC2PreloadConfig( TIM1, TIM_OCPreload_Disable );
-		}else if(i==pwm_ch4){
-			TIM_OC2PreloadConfig( TIM1, TIM_OCPreload_Disable );
-		}
-		TIM_ARRPreloadConfig( TIM1, ENABLE );
-		TIM_Cmd( TIM1, ENABLE );
-
-	}else if(j == pwm_timer2){
+		GPIO_PinRemapConfig(GPIO_FullRemap_TIM2,ENABLE);
+		#endif
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE );
 		RCC_APB2PeriphClockCmd(get_gpio_rcc(p_map->pin), ENABLE);
 		GPIO_InitStructure.GPIO_Pin = get_gpio_pin(p_map->pin);
@@ -114,7 +68,6 @@ bool sdk_api_pwm_init(const pin_map_t* p_map,uint32_t freq, uint8_t duty)
 		}
 		TIM_ARRPreloadConfig( TIM2, ENABLE );
 		TIM_Cmd( TIM2, ENABLE );
-	}
 	printf("pwm=%d init\r\n",i);
     return 1;
 }
