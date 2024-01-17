@@ -28,9 +28,6 @@
 {GPIO_NUM,   PIN_MODE,     Channel+invert},\
 {31,   3,     4|PWM_INVERT_ENABLED},\
 */
-#ifndef REMAPP
-#define REMAPP   0
-#endif
 typedef enum {
     pwm_timer1,
     pwm_timer2,

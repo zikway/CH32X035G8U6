@@ -19,12 +19,14 @@ bool sdk_api_pwm_init(const pin_map_t* p_map,uint32_t freq, uint8_t duty)
 		TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure={0};
 		uint32_t i;
 		uint32_t j;
+		uint32_t frequency;
+		frequency = 48000000/freq/255;
 		i=p_map->attribute;
 		j=p_map->peripheral;
-		#if(REMAPP == 1)
-		RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
-		GPIO_PinRemapConfig(GPIO_FullRemap_TIM2,ENABLE);
-		#endif
+		if((p_map->pin == PB_11 && j == pwm_timer2) || (p_map->pin == PB_12) &&  j == pwm_timer2){
+			RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO,ENABLE);
+			GPIO_PinRemapConfig(GPIO_FullRemap_TIM2,ENABLE);
+		}
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE );
 		RCC_APB2PeriphClockCmd(get_gpio_rcc(p_map->pin), ENABLE);
 		GPIO_InitStructure.GPIO_Pin = get_gpio_pin(p_map->pin);
@@ -33,7 +35,7 @@ bool sdk_api_pwm_init(const pin_map_t* p_map,uint32_t freq, uint8_t duty)
 		GPIO_Init(get_gpio_port(p_map->pin), &GPIO_InitStructure);
 
 		TIM_TimeBaseInitStructure.TIM_Period = 255-1;
-		TIM_TimeBaseInitStructure.TIM_Prescaler = 192000-1;
+		TIM_TimeBaseInitStructure.TIM_Prescaler = frequency;
 		TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 		TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
 		TIM_TimeBaseInit( TIM2, &TIM_TimeBaseInitStructure);
