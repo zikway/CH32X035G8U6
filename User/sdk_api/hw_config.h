@@ -102,6 +102,7 @@ ________________________________________________________________________________
         #define APP_TRIGGER_MIN_R                   (250)
         #define APP_TRIGGER_CAL_DEADZONE            5
         #define APP_TRIGGER_CAL_SIDE_DEADZONE       14
+        #define HW_PWM_FRENQUENCY                   10000
 
         #define HW_MOTOR_ENABLED                   1
         #define JOYSTICK_CAl_END_KEY                (HW_KEY_START | HW_KEY_SELECT)
@@ -113,7 +114,7 @@ ________________________________________________________________________________
 
         #define DEFAULT_MODEL						"ZJ-K001"
         #define DEFAULT_NAME			            "K001"
-        #define SW_VERSION                          0x17
+        #define SW_VERSION                          0x18
     #endif
 #endif
 /*******************************************************************************************************************
