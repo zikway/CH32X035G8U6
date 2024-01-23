@@ -103,6 +103,7 @@ ________________________________________________________________________________
         #define APP_TRIGGER_CAL_DEADZONE            5
         #define APP_TRIGGER_CAL_SIDE_DEADZONE       14
         #define HW_PWM_FRENQUENCY                   100
+        #define ADC_FITER_MIN                       10
 
         #define HW_MOTOR_ENABLED                   1
         #define JOYSTICK_CAl_END_KEY                (HW_KEY_START | HW_KEY_SELECT)
