@@ -289,7 +289,7 @@ UINT8 PD_Detect( void )
     UINT8  ret = 0;
     UINT8  cmp_cc1 = 0;
     UINT8  cmp_cc2 = 0;
-
+    
     if(PD_Ctl.Flag.Bit.Connected)                                       /* Detect disconnection */
     {
         /* According to the usage scenario of PD SNK, whether
@@ -1088,6 +1088,7 @@ void PD_Main_Proc( )
             break;
     }
 
+    if(PD_Ctl.PD_State == STA_IDLE) return; //IQOO11手机上电时不走标准流程，会直接广播。CC线检测会延后
     /* Receive message processing */
     if( PD_Ctl.Flag.Bit.Msg_Recvd )
     {
@@ -1095,7 +1096,7 @@ void PD_Main_Proc( )
         /* Adapter communication idle timing */
         PD_Ctl.Adapter_Idle_Cnt = 0x00;
         pd_header = PD_Rx_Buf[ 0 ] & 0x1F;
-        switch( pd_header )
+            switch( pd_header )
         {
             case DEF_TYPE_SRC_CAP:
                 Delay_Ms( 5 );
