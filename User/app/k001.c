@@ -60,8 +60,29 @@ bool phone_plugin(void){
     return (m_adc_data[PHONE] > 1000);
 }
 
-bool charger_in(void){
-    return (m_adc_data[CHARGER] > 1340);
+bool charger_in(void)
+{
+ static bool ret = false;
+ static bool charger_flag = false;
+ static uint32_t t = 0;
+
+ if(m_adc_data[CHARGER] > 1340){
+    if(!charger_flag){
+        charger_flag = true;
+        t = mSysTick;
+    }
+    }else{
+        if(mSysTick - t >= 1000){
+            charger_flag = false;
+        }
+    }
+        if(charger_flag && (mSysTick - t >= 1000)){
+            ret = true;
+        }else{
+            ret = false;
+ }
+ 
+ return ret; 
 }
 
 

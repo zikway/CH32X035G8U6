@@ -39,6 +39,8 @@ UINT8  PDO_Len;
 bool cc_connected = false; //仅用于SRC模式
 bool pd_mode = SNK;
 
+bool apply_power = false; //申请电源
+
 typedef enum {
     STATE_START_SWAP,
     STATE_WAIT_PS_READY,
@@ -523,7 +525,9 @@ void PD_Det_Proc( void )
     else
     {
         /* PD disconnected, check connection */
-        status = PD_Detect( );
+        if(!apply_power){
+            status = PD_Detect();
+        }
 
         /* Determine connection status */
         if( status == 0 )
@@ -842,10 +846,12 @@ void PDO_Request( UINT8 pdo_index )
     if( status == DEF_PD_TX_OK )
     {
         PD_Ctl.PD_State = STA_RX_ACCEPT_WAIT;
+        apply_power = true;
     }
     else
     {
         PD_Ctl.PD_State = STA_TX_SOFTRST;
+        apply_power = false;
     }
     PD_Ctl.PD_Comm_Timer = 0;
     PD_Ctl.Flag.Bit.PD_Comm_Succ = 1;
@@ -1088,7 +1094,7 @@ void PD_Main_Proc( )
             break;
     }
 
-    if(PD_Ctl.PD_State == STA_IDLE) return; //IQOO11手机上电时不走标准流程，会直接广播。CC线检测会延后
+   // if(PD_Ctl.PD_State == STA_IDLE) return; //IQOO11手机上电时不走标准流程，会直接广播。CC线检测会延后
     /* Receive message processing */
     if( PD_Ctl.Flag.Bit.Msg_Recvd )
     {

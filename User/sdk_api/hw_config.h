@@ -100,8 +100,8 @@ ________________________________________________________________________________
         #define APP_TRIGGER_ENABLED                 1
         #define APP_TRIGGER_DEADZONE                15
         #define APP_TRIGGER_MIN_R                   (250)
-        #define APP_TRIGGER_CAL_DEADZONE            5
-        #define APP_TRIGGER_CAL_SIDE_DEADZONE       14
+        #define APP_TRIGGER_CAL_DEADZONE            10
+        #define APP_TRIGGER_CAL_SIDE_DEADZONE       10
         #define HW_PWM_FRENQUENCY                   100
 
         #define HW_MOTOR_ENABLED                   1
