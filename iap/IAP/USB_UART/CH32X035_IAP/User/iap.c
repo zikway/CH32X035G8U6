@@ -72,8 +72,8 @@ void CH32_IAP_Program(u32 adr, u32* buf)
 
 void clear_crc(void)
 {
-    Fast_Program_Buf[0] = 0x00;
-    Fast_Program_Buf[1] = 0x00;
+    Fast_Program_Buf[0] = 0xA5;
+    Fast_Program_Buf[1] = 0xA5;
     Fast_Program_Buf[2] = 0x00;
     Fast_Program_Buf[3] = 0x00;
     FLASH_Unlock_Fast();
@@ -83,7 +83,7 @@ void clear_crc(void)
 
 void set_crc(void)
 {
-    Fast_Program_Buf[0] =  0xA5;
+    Fast_Program_Buf[0] = 0xA5;
     Fast_Program_Buf[1] = 0xA5;
     Fast_Program_Buf[2] = 0xA5;
     Fast_Program_Buf[3] = 0xA5;
