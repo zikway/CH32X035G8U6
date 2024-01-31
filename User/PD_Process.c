@@ -54,6 +54,8 @@ UINT8 SrcCap_5V3A_Tab[ 4 ]  = { 0X2C, 0X91, 0X01, 0X3E };
 UINT8 SrcCap_5V1A5_Tab[ 4 ] = { 0X96, 0X90, 0X01, 0X3E };
 UINT8 SrcCap_5V2A_Tab[ 4 ]  = { 0XC8, 0X90, 0X01, 0X3E };
 UINT8 SinkCap_5V1A_Tab[ 4 ] = { 0X64, 0X90, 0X01, 0X36 };
+UINT8 SinkCap_5V3A_Tab[ 4 ] = { 0X3C, 0X91, 0x01, 0X2c };
+UINT8 SinkCap_5V3A_Tabb[ 4 ] = { 0X2C, 0X91, 0x01, 0X3c };
 
 /* PD3.0 */
 UINT8 SrcCap_Ext_Tab[ 28 ] =
@@ -117,24 +119,32 @@ __WEAK void pd_hw_init(void)
  */
 void USBPD_IRQHandler(void)
 {
-    if(USBPD->STATUS & IF_RX_ACT)
+        if(USBPD->STATUS & IF_RX_ACT)
     {
         USBPD->STATUS |= IF_RX_ACT;
         if( ( USBPD->STATUS & MASK_PD_STAT ) == PD_RX_SOP0 )
         {
-            if( USBPD->BMC_BYTE_CNT >= 6 )
+                if( USBPD->BMC_BYTE_CNT >= 6 )
             {
-                /* If GOODCRC, do not answer and ignore this reception */
+                    /* If GOODCRC, do not answer and ignore this reception */
                 if( ( USBPD->BMC_BYTE_CNT != 6 ) || ( ( PD_Rx_Buf[ 0 ] & 0x1F ) != DEF_TYPE_GOODCRC ) )
                 {
                     Delay_Us(30);                       /* Delay 30us, answer GoodCRC */
-					if(pd_mode == SNK)
+                    if(pd_mode == SNK)
                     PD_Ack_Buf[ 0 ] = 0x41;
 					else
 					PD_Ack_Buf[ 0 ] = 0x61;
+                    
+                    if( PD_Ctl.Flag.Bit.PD_Role ==0)
+                    {
+                        //处理DR SWAP的情况
+                        PD_Ack_Buf[ 0 ] &= ~0x20;
+                    }
+                    
+          
                     PD_Ack_Buf[ 1 ] = ( PD_Rx_Buf[ 1 ] & 0x0E ) | PD_Ctl.Flag.Bit.Auto_Ack_PRRole;
                     USBPD->CONFIG |= IE_TX_END ;
-                    PD_Phy_SendPack( 0, PD_Ack_Buf, 2, UPD_SOP0 );
+                        PD_Phy_SendPack( 0, PD_Ack_Buf, 2, UPD_SOP0 );
                 }
             }
         }
@@ -271,7 +281,9 @@ void PD_Init( void )
     
     if(charger_in()){
         pd_mode = SRC;
+        logi("SRC mode\r\n");
     }else{
+        logi("SNK mode\r\n");
         pd_mode = SNK;
     }
     PD_PHY_Reset( );
@@ -510,7 +522,7 @@ UINT8 PD_SRC_Detect( void )
  */
 void PD_Det_Proc( void )
 {
-    UINT8  status;
+    UINT8  status = 0;
 
     if( PD_Ctl.Flag.Bit.Connected )
     {
@@ -708,6 +720,13 @@ void PD_Load_Header( UINT8 ex, UINT8 msg_type )
        BIT5 - Port Data Role, 0: UFP; 1: DFP
        BIT[4:0] - Message Type
     */
+//    static uint8_t s_msg;
+//    if(s_msg != msg_type){
+//        s_msg = msg_type;
+//        printf("ex, msg_type:%d, %d\r\n",ex, msg_type);
+//    }
+//     logi("PD_Ctl.Msg_ID: %d\r\n",PD_Ctl.Msg_ID);       
+  
     PD_Tx_Buf[ 0 ] = msg_type;
     if( PD_Ctl.Flag.Bit.PD_Role )
     {
@@ -770,7 +789,7 @@ UINT8 PD_Send_Handle( UINT8 *pbuf, UINT8 len )
     {
         NVIC_DisableIRQ( USBPD_IRQn );
         PD_Phy_SendPack( 0x01, PD_Tx_Buf, ( len + 2 ), UPD_SOP0 );
-
+        // dump(PD_Tx_Buf, ( len + 2 ));
         /* Set receive timeout 750US */
         cnt = 250;
         while( --cnt )
@@ -961,11 +980,16 @@ void PD_Main_Proc( )
     UINT8  pd_header;
     UINT8 var;
     UINT16 Current,Voltage;
-
     /* Receive idle timer count */
     PD_Ctl.PD_BusIdle_Timer += Tmr_Ms_Dlt;
 
     /* Status analysis processing */
+    // static uint32_t s_sta;
+    // if(s_sta != PD_Ctl.PD_State )
+    // {
+    //     s_sta = PD_Ctl.PD_State ;
+    //     printf("PD_State:%d\r\n",s_sta);
+    // }
     switch( PD_Ctl.PD_State )
     {
         case STA_DET_CHARGING:
@@ -1020,8 +1044,20 @@ void PD_Main_Proc( )
             if(prswap_sta == STATE_START_SWAP){
                 printf("go tx ps rdy\r\n");
                 pd_mode = SRC;
-                PD_PHY_Reset();
-	            PD_Ctl.Flag.Bit.PD_Role = 0;
+                PD_SRC_Init( );
+                PD_Ctl.Flag.Bit.PD_Role = 0;
+            	PD_Ctl.Flag.Bit.Msg_Recvd = 0;
+	            // PD_Ctl.Msg_ID = 0;
+                PD_Ctl.Flag.Bit.PD_Version = 0;
+                PD_Ctl.Det_Cnt = 0;
+                PD_Ctl.Flag.Bit.Connected = 0;
+                PD_Ctl.PD_Comm_Timer = 0;
+                PD_Ctl.PD_BusIdle_Timer = 0;
+                PD_Ctl.Mode_Try_Cnt = 0x80;
+                PD_Ctl.Flag.Bit.Stop_Det_Chk = 0;
+                PD_Ctl.PD_State = STA_IDLE;
+                PD_Ctl.Flag.Bit.PD_Comm_Succ = 0;
+                cc1_5_1k_pulldown_remove();
                 vbus_on();
                 PD_Ctl.PD_State = STA_TX_PS_RDY;
             }else{
@@ -1058,9 +1094,9 @@ void PD_Main_Proc( )
         case STA_TX_PR_SWAP:
             PD_Ctl.PD_Comm_Timer += Tmr_Ms_Dlt;
             if( PD_Ctl.PD_Comm_Timer > 19 )
-            {                
+            {         
                 PD_Load_Header( 0x00, DEF_TYPE_PR_SWAP );
-                status = PD_Send_Handle( NULL, 0 );
+                status = PD_Send_Handle( NULL, 0 );   
                 if( status == DEF_PD_TX_OK )
                 {
                     printf("Tx PR Swap\r\n");
@@ -1102,7 +1138,13 @@ void PD_Main_Proc( )
         /* Adapter communication idle timing */
         PD_Ctl.Adapter_Idle_Cnt = 0x00;
         pd_header = PD_Rx_Buf[ 0 ] & 0x1F;
-            switch( pd_header )
+        // static uint32_t s_pd_header;
+        // if(s_pd_header != pd_header)
+        // {
+        //     s_pd_header = pd_header;
+        //     printf("pd_header:%d\r\n",s_pd_header);
+        // }
+        switch( pd_header )
         {
             case DEF_TYPE_SRC_CAP:
                 Delay_Ms( 5 );
@@ -1133,7 +1175,7 @@ void PD_Main_Proc( )
 
             case DEF_TYPE_PS_RDY:
                 /* PS_RDY is received */
-                printf("Success\r\n");
+                printf("Success\r\n");                
                 PD_Ctl.PD_State = STA_RX_PS_RDY;
                 break;
 
@@ -1144,13 +1186,18 @@ void PD_Main_Proc( )
             case DEF_TYPE_GET_SNK_CAP:
                 Delay_Ms( 1 );
                 PD_Load_Header( 0x00, DEF_TYPE_SNK_CAP );
-                PD_Send_Handle( SinkCap_5V1A_Tab, sizeof( SinkCap_5V1A_Tab ) );
+                PD_Send_Handle( SinkCap_5V3A_Tabb, sizeof( SinkCap_5V3A_Tabb ) );
                 break;
 
             case DEF_TYPE_SOFT_RESET:
                 Delay_Ms( 1 );
                 PD_Load_Header( 0x00, DEF_TYPE_ACCEPT );
                 PD_Send_Handle( NULL, 0 );
+                break;
+            case DEF_TYPE_GET_SRC_CAP:
+                Delay_Ms( 1 );
+                PD_Load_Header( 0x00, DEF_TYPE_SRC_CAP );
+                PD_Send_Handle( SinkCap_5V1A_Tab, sizeof( SinkCap_5V1A_Tab ) );
                 break;
 
             case DEF_TYPE_GET_SRC_CAP_EX:
@@ -1177,8 +1224,8 @@ void PD_Main_Proc( )
                 {
                     /* REQ */
                     Delay_Ms( 1 );
-
-                    /* Data to be sent is cached to PD_Tx_Buf */
+                    
+                /* Data to be sent is cached to PD_Tx_Buf */
                     PD_Load_Header( 0x00, DEF_TYPE_VENDOR_DEFINED );
 
                     /* Return to NAK */
@@ -1212,7 +1259,12 @@ void PD_SRC_Main_Proc( )
     UINT8  status;
     UINT8  pd_header;
     UINT16 Current;
-
+    // static uint32_t s_sta;
+    // if(s_sta != PD_Ctl.PD_State )
+    // {
+    //     s_sta = PD_Ctl.PD_State ;
+    //     printf("SRC PD_State:%d\r\n",s_sta);
+    // }
     /* Receive idle timer count */
     PD_Ctl.PD_BusIdle_Timer += Tmr_Ms_Dlt;
 
@@ -1296,7 +1348,7 @@ void PD_SRC_Main_Proc( )
                 }
                 else
                 {
-                    PD_Ctl.PD_State = STA_TX_SOFTRST;
+                        PD_Ctl.PD_State = STA_TX_SOFTRST;
                     PD_Ctl.PD_Comm_Timer = 0;
                 }
             }
@@ -1395,9 +1447,29 @@ void PD_SRC_Main_Proc( )
         /* Adapter communication idle timing */
         PD_Ctl.Adapter_Idle_Cnt = 0x00;
         pd_header = PD_Rx_Buf[ 0 ] & 0x1F;
+        // static uint8_t s_pd_header;
+        // if(s_pd_header != pd_header)
+        // {
+        //     s_pd_header = pd_header;
+        //     printf("SRC pd_header:%d\r\n",s_pd_header);
+        // }
         switch( pd_header )
         {
+            case DEF_TYPE_VCONN_SWAP:
+                Delay_Ms( 1 );
+                PD_Load_Header( 0x00, DEF_TYPE_REJECT );
+                PD_Send_Handle( NULL, 0 );
+                break;
+            case DEF_TYPE_GET_SNK_CAP:
+                //return sink cap
+                Delay_Ms( 1 );
+                PD_Load_Header( 0x00, DEF_TYPE_SNK_CAP );
+                PD_Send_Handle( SinkCap_5V3A_Tab, sizeof( SinkCap_5V3A_Tab ) );
+                break;
             case DEF_TYPE_ACCEPT:
+                if(PD_Ctl.PD_State == STA_RX_DR_SWAP_ACCEPT)
+                    PD_Ctl.Flag.Bit.PD_Role = 0;
+                
                 PD_Ctl.PD_Comm_Timer = 0;
                 if( PD_Ctl.PD_State == STA_RX_ACCEPT_WAIT )
                 {
@@ -1449,7 +1521,7 @@ void PD_SRC_Main_Proc( )
                 PD_Send_Handle( NULL, 0 );
                 break;
             case DEF_TYPE_VENDOR_DEFINED:
-                /* VDM message handling */
+                                /* VDM message handling */
                 if( ( PD_Rx_Buf[ 2 ] & 0xC0 ) == 0 )
                 {
                     /* REQ */

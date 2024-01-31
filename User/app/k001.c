@@ -33,7 +33,7 @@
 #define DISCHARGE_PIN               PA_08   //输出 高电平 -> 设备放电，达到快速关机
 #define DISCHARGE(en)               hw_gpio_output(DISCHARGE_PIN, en)
 
-FIRFilter  filter[2]; //左扳机，右扳机
+FIRFilter  filter[3]; //左扳机，右扳机，插入充电器的电压
 
 
 void vbus_on(void)
@@ -62,27 +62,19 @@ bool phone_plugin(void){
 
 bool charger_in(void)
 {
- static bool ret = false;
- static bool charger_flag = false;
- static uint32_t t = 0;
-
- if(m_adc_data[CHARGER] > 1340){
-    if(!charger_flag){
-        charger_flag = true;
+    static uint32_t t;
+    bool ret = false;
+    if(m_adc_data[CHARGER] < 1000){
+        //小米充电头，插入后，会有一个短时间的低电平，此时不认为是充电器插入
         t = mSysTick;
     }
-    }else{
-        if(mSysTick - t >= 1000){
-            charger_flag = false;
-        }
+    
+    if((mSysTick -t > 1000 || mSysTick < 500) && m_adc_data[CHARGER] > 1000)
+    {
+        logi("m_adc_data[CHARGER] = %d\n",m_adc_data[CHARGER]);
+        ret = true;
     }
-        if(charger_flag && (mSysTick - t >= 1000)){
-            ret = true;
-        }else{
-            ret = false;
- }
- 
- return ret; 
+    return ret;
 }
 
 
@@ -94,7 +86,7 @@ void hw_user_vendor_adc_scan(uint16_t *adc_date)
     for(int i=0; i<2; i++){
         adc_date[4+i] = FIRFilter_Update(&filter[i], adc_date[4+i]);
     }
-    
+    adc_date[CHARGER] = FIRFilter_Update(&filter[2], adc_date[CHARGER]);  
 }
 
 
