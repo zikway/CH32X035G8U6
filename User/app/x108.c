@@ -378,6 +378,7 @@ void key_analyse(void)
             light = LIGHT_RAINBOW;
         }
         light_ctrl(light, m_period);
+        mstorep->light = light;
     }
     
     /* 开机默认狂暴模式，短按切智能温控模式, 再按关机。 */
@@ -419,6 +420,9 @@ void user_vender_init(void)
     enter = false;
     start_time = 0;
     t100_ms_cnt = 0;
+    
+    light = mstorep->light;
+    
     dev_ctrl(mode);
 }
 

@@ -155,7 +155,13 @@ ________________________________________________________________________________
         #define KEY_B_GPIO                   PB_00
         #define TR_UART2_TX_PIN              PA_02
         #define TR_UART2_RX_PIN              PA_03
-
+        #define STORE_STRUCT_DEF    {\
+            uint8_t flash_head;\
+            uint8_t flash_res[5];\
+            uint8_t gpad_mode;\
+            uint8_t sub_mode;\
+            uint8_t light;\
+        }
     #endif
 
     #ifndef STORE_STRUCT_DEF
