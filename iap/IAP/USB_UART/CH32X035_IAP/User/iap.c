@@ -138,6 +138,9 @@ u8 RecData_Deal(void)
          printf("S:\n");
         break;
      case CMD_IAP_ERASE:
+         CodeLen = 0;
+         IapReceLen = 0;
+         
          printf("E:\n");
          FLASH_Unlock_Fast();
          s = ERR_SCUESS;
