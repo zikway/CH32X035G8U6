@@ -1030,6 +1030,7 @@ void PD_Main_Proc( )
                             switch (pd_req_vol)
                             {
                             case 5:
+                                QC_Request_5v();
                                 /* code */
                                 break;
                             case 9:

@@ -126,33 +126,33 @@ ________________________________________________________________________________
         #define FAN_ID                      0
         #define COOLER_ID                   1
         
-        #define HW_ADC_MAP_NUM  3
+        #define HW_ADC_MAP_NUM  4
         #define HW_ADC_MAP      {\
-            {PA_01, 0UL, 1},\
+            {PA_05, 0UL, 5},\
             {PA_00, 0UL, 0},\
-            {PC_00, 0UL, 10},\
+            {PA_07, 0UL, 7},\
+            {PA_06,0UL, 6},\
             }
 
         #define ADC_NTC_ID		1   //外设探测NTC
         #define ADC_LY_ID		0   //半导体冷面NTC
         #define ADC_CHARGER		2   //检测充电器电压
- 
-        #define SEG_ROW_0_PIN PA_04
-        #define SEG_ROW_1_PIN PA_05
-        #define SEG_ROW_2_PIN PA_06
-        #define SEG_ROW_3_PIN PA_07
+        #define SEG_ROW_0_PIN  PB_04
+        #define SEG_ROW_1_PIN  PB_07
+        #define SEG_ROW_2_PIN  PB_01   
+        #define SEG_ROW_3_PIN  PC_19
 
 
-        #define COL_0_PIN PB_06
-        #define COL_1_PIN PB_07
-        #define COL_2_PIN PB_08
-        #define COL_3_PIN PB_09
-        #define COL_4_PIN PB_10
+        #define COL_0_PIN  PB_10
+        #define COL_1_PIN  PB_09
+        #define COL_2_PIN  PB_08
+        #define COL_3_PIN  PB_06
+        #define COL_4_PIN  PB_00
         
-        #define EN_5V_OUTPUT                 -1
+        #define EN_5V_OUTPUT                 PC_03
         
-        #define KEY_A_GPIO                   PB_04
-        #define KEY_B_GPIO                   PB_00
+        #define KEY_A_GPIO                   PA_01
+        #define KEY_B_GPIO                   PA_04
         #define TR_UART2_TX_PIN              PA_02
         #define TR_UART2_RX_PIN              PA_03
         #define STORE_STRUCT_DEF    {\

@@ -132,6 +132,7 @@ ________________________________________________________________________________
         #define	RGB1W_CYC_48M	                    58
         
         #define MCU_DEV_UPGRADE_TYPE                MCU_UPGRADE_CHXXX
+        #define MCU_DEV_UPGRADE_TYPE                MCU_UPGRADE_CHXXX
 
         #define DEFAULT_MODEL						"ZJ-X108"
         #define DEFAULT_NAME			            "X108"
