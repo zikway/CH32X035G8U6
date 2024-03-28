@@ -391,128 +391,128 @@ extern "C" {
 /* Struct Definition */
 
 /* USB Setup Request */
-typedef struct __attribute__((packed)) _USB_SETUP_REQ
-{
-    uint8_t  bRequestType;
-    uint8_t  bRequest;
-    uint16_t wValue;
-    uint16_t wIndex;
-    uint16_t wLength;
-} USB_SETUP_REQ, *PUSB_SETUP_REQ;
+// typedef struct __attribute__((packed)) _USB_SETUP_REQ
+// {
+//     uint8_t  bRequestType;
+//     uint8_t  bRequest;
+//     uint16_t wValue;
+//     uint16_t wIndex;
+//     uint16_t wLength;
+// } USB_SETUP_REQ, *PUSB_SETUP_REQ;
 
-/* USB Device Descriptor */
-typedef struct __attribute__((packed)) _USB_DEVICE_DESCR
-{
-    uint8_t  bLength;
-    uint8_t  bDescriptorType;
-    uint16_t bcdUSB;
-    uint8_t  bDeviceClass;
-    uint8_t  bDeviceSubClass;
-    uint8_t  bDeviceProtocol;
-    uint8_t  bMaxPacketSize0;
-    uint16_t idVendor;
-    uint16_t idProduct;
-    uint16_t bcdDevice;
-    uint8_t  iManufacturer;
-    uint8_t  iProduct;
-    uint8_t  iSerialNumber;
-    uint8_t  bNumConfigurations;
-} USB_DEV_DESCR, *PUSB_DEV_DESCR;
+// /* USB Device Descriptor */
+// typedef struct __attribute__((packed)) _USB_DEVICE_DESCR
+// {
+//     uint8_t  bLength;
+//     uint8_t  bDescriptorType;
+//     uint16_t bcdUSB;
+//     uint8_t  bDeviceClass;
+//     uint8_t  bDeviceSubClass;
+//     uint8_t  bDeviceProtocol;
+//     uint8_t  bMaxPacketSize0;
+//     uint16_t idVendor;
+//     uint16_t idProduct;
+//     uint16_t bcdDevice;
+//     uint8_t  iManufacturer;
+//     uint8_t  iProduct;
+//     uint8_t  iSerialNumber;
+//     uint8_t  bNumConfigurations;
+// } USB_DEV_DESCR, *PUSB_DEV_DESCR;
 
-/* USB Configuration Descriptor */
-typedef struct __attribute__((packed)) _USB_CONFIG_DESCR
-{
-    uint8_t  bLength;
-    uint8_t  bDescriptorType;
-    uint16_t wTotalLength;
-    uint8_t  bNumInterfaces;
-    uint8_t  bConfigurationValue;
-    uint8_t  iConfiguration;
-    uint8_t  bmAttributes;
-    uint8_t  MaxPower;
-} USB_CFG_DESCR, *PUSB_CFG_DESCR;
+// /* USB Configuration Descriptor */
+// typedef struct __attribute__((packed)) _USB_CONFIG_DESCR
+// {
+//     uint8_t  bLength;
+//     uint8_t  bDescriptorType;
+//     uint16_t wTotalLength;
+//     uint8_t  bNumInterfaces;
+//     uint8_t  bConfigurationValue;
+//     uint8_t  iConfiguration;
+//     uint8_t  bmAttributes;
+//     uint8_t  MaxPower;
+// } USB_CFG_DESCR, *PUSB_CFG_DESCR;
 
-/* USB Interface Descriptor */
-typedef struct __attribute__((packed)) _USB_INTERF_DESCR
-{
-    uint8_t  bLength;
-    uint8_t  bDescriptorType;
-    uint8_t  bInterfaceNumber;
-    uint8_t  bAlternateSetting;
-    uint8_t  bNumEndpoints;
-    uint8_t  bInterfaceClass;
-    uint8_t  bInterfaceSubClass;
-    uint8_t  bInterfaceProtocol;
-    uint8_t  iInterface;
-} USB_ITF_DESCR, *PUSB_ITF_DESCR;
+// /* USB Interface Descriptor */
+// typedef struct __attribute__((packed)) _USB_INTERF_DESCR
+// {
+//     uint8_t  bLength;
+//     uint8_t  bDescriptorType;
+//     uint8_t  bInterfaceNumber;
+//     uint8_t  bAlternateSetting;
+//     uint8_t  bNumEndpoints;
+//     uint8_t  bInterfaceClass;
+//     uint8_t  bInterfaceSubClass;
+//     uint8_t  bInterfaceProtocol;
+//     uint8_t  iInterface;
+// } USB_ITF_DESCR, *PUSB_ITF_DESCR;
 
-/* USB Endpoint Descriptor */
-typedef struct __attribute__((packed)) _USB_ENDPOINT_DESCR
-{
-    uint8_t  bLength;
-    uint8_t  bDescriptorType;
-    uint8_t  bEndpointAddress;
-    uint8_t  bmAttributes;
-    uint8_t  wMaxPacketSizeL;
-    uint8_t  wMaxPacketSizeH;
-    uint8_t  bInterval;
-} USB_ENDP_DESCR, *PUSB_ENDP_DESCR;
+// /* USB Endpoint Descriptor */
+// typedef struct __attribute__((packed)) _USB_ENDPOINT_DESCR
+// {
+//     uint8_t  bLength;
+//     uint8_t  bDescriptorType;
+//     uint8_t  bEndpointAddress;
+//     uint8_t  bmAttributes;
+//     uint8_t  wMaxPacketSizeL;
+//     uint8_t  wMaxPacketSizeH;
+//     uint8_t  bInterval;
+// } USB_ENDP_DESCR, *PUSB_ENDP_DESCR;
 
-/* USB Configuration Descriptor Set */
-typedef struct __attribute__((packed)) _USB_CONFIG_DESCR_LONG
-{
-    USB_CFG_DESCR  cfg_descr;
-    USB_ITF_DESCR  itf_descr;
-    USB_ENDP_DESCR endp_descr[ 1 ];
-} USB_CFG_DESCR_LONG, *PUSB_CFG_DESCR_LONG;
+// /* USB Configuration Descriptor Set */
+// typedef struct __attribute__((packed)) _USB_CONFIG_DESCR_LONG
+// {
+//     USB_CFG_DESCR  cfg_descr;
+//     USB_ITF_DESCR  itf_descr;
+//     USB_ENDP_DESCR endp_descr[ 1 ];
+// } USB_CFG_DESCR_LONG, *PUSB_CFG_DESCR_LONG;
 
-/* USB HUB Descriptor */
-typedef struct __attribute__((packed)) _USB_HUB_DESCR
-{
-    uint8_t  bDescLength;
-    uint8_t  bDescriptorType;
-    uint8_t  bNbrPorts;
-    uint8_t  wHubCharacteristicsL;
-    uint8_t  wHubCharacteristicsH;
-    uint8_t  bPwrOn2PwrGood;
-    uint8_t  bHubContrCurrent;
-    uint8_t  DeviceRemovable;
-    uint8_t  PortPwrCtrlMask;
-} USB_HUB_DESCR, *PUSB_HUB_DESCR;
+// /* USB HUB Descriptor */
+// typedef struct __attribute__((packed)) _USB_HUB_DESCR
+// {
+//     uint8_t  bDescLength;
+//     uint8_t  bDescriptorType;
+//     uint8_t  bNbrPorts;
+//     uint8_t  wHubCharacteristicsL;
+//     uint8_t  wHubCharacteristicsH;
+//     uint8_t  bPwrOn2PwrGood;
+//     uint8_t  bHubContrCurrent;
+//     uint8_t  DeviceRemovable;
+//     uint8_t  PortPwrCtrlMask;
+// } USB_HUB_DESCR, *PUSB_HUB_DESCR;
 
-/* USB HID Descriptor */
-typedef struct __attribute__((packed)) _USB_HID_DESCR
-{
-    uint8_t  bLength;
-    uint8_t  bDescriptorType;
-    uint16_t bcdHID;
-    uint8_t  bCountryCode;
-    uint8_t  bNumDescriptors;
-    uint8_t  bDescriptorTypeX;
-    uint8_t  wDescriptorLengthL;
-    uint8_t  wDescriptorLengthH;
-} USB_HID_DESCR, *PUSB_HID_DESCR;
+// /* USB HID Descriptor */
+// typedef struct __attribute__((packed)) _USB_HID_DESCR
+// {
+//     uint8_t  bLength;
+//     uint8_t  bDescriptorType;
+//     uint16_t bcdHID;
+//     uint8_t  bCountryCode;
+//     uint8_t  bNumDescriptors;
+//     uint8_t  bDescriptorTypeX;
+//     uint8_t  wDescriptorLengthL;
+//     uint8_t  wDescriptorLengthH;
+// } USB_HID_DESCR, *PUSB_HID_DESCR;
 
-/* USB UDisk */
-typedef struct __attribute__((packed)) _UDISK_BOC_CBW
-{
-    uint32_t mCBW_Sig;
-    uint32_t mCBW_Tag;
-    uint32_t mCBW_DataLen;
-    uint8_t  mCBW_Flag;
-    uint8_t  mCBW_LUN;
-    uint8_t  mCBW_CB_Len;
-    uint8_t  mCBW_CB_Buf[ 16 ];
-} UDISK_BOC_CBW, *PXUDISK_BOC_CBW;
+// /* USB UDisk */
+// typedef struct __attribute__((packed)) _UDISK_BOC_CBW
+// {
+//     uint32_t mCBW_Sig;
+//     uint32_t mCBW_Tag;
+//     uint32_t mCBW_DataLen;
+//     uint8_t  mCBW_Flag;
+//     uint8_t  mCBW_LUN;
+//     uint8_t  mCBW_CB_Len;
+//     uint8_t  mCBW_CB_Buf[ 16 ];
+// } UDISK_BOC_CBW, *PXUDISK_BOC_CBW;
 
-/* USB UDisk */
-typedef struct __attribute__((packed)) _UDISK_BOC_CSW
-{
-    uint32_t mCBW_Sig;
-    uint32_t mCBW_Tag;
-    uint32_t mCSW_Residue;
-    uint8_t  mCSW_Status;
-} UDISK_BOC_CSW, *PXUDISK_BOC_CSW;
+// /* USB UDisk */
+// typedef struct __attribute__((packed)) _UDISK_BOC_CSW
+// {
+//     uint32_t mCBW_Sig;
+//     uint32_t mCBW_Tag;
+//     uint32_t mCSW_Residue;
+//     uint8_t  mCSW_Status;
+// } UDISK_BOC_CSW, *PXUDISK_BOC_CSW;
 
 
 #ifdef __cplusplus

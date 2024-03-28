@@ -5,6 +5,26 @@
         "debug.h": "c",
         "sdk_api_gpio.h": "c",
         "ch32x035_gpio.h": "c",
-        "ch32x035.h": "c"
+        "ch32x035.h": "c",
+        "usbd_core.h": "c",
+        "chxxx_usbd.h": "c",
+        "bkxxx_usbd.h": "c",
+        "jlxxx_usbd.h": "c",
+        "usbd.h": "c",
+        "usb_desc_type.h": "c",
+        "common_type.h": "c",
+        "hw_board.h": "c",
+        "usbd_class.h": "c",
+        "usbd_xinput.h": "c",
+        "ch32x035_pwr.h": "c",
+        "ch32x035_usbfs_device.h": "c",
+        "hw_debug.h": "c",
+        "sdk_api_systick.h": "c",
+        "ch32x035_usb.h": "c",
+        "app_otg.h": "c",
+        "hw_config.h": "c",
+        "pd_process.h": "c",
+        "ch035_usbd.h": "c",
+        "ch32x035_rcc.h": "c"
     }
 }

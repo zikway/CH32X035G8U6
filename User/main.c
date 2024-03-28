@@ -22,6 +22,7 @@
 #include "hw_debug.h"
 #include "gpad.h"
 #include "PD_Process.h"
+#include "app_otg.h"
 
 /* Global define */
 
@@ -118,24 +119,32 @@ void DMA_Tx_Init(DMA_Channel_TypeDef *DMA_CHx, u32 ppadr, u32 memadr, u16 bufsiz
 int main(void)
 {
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
     SystemCoreClockUpdate();
     Delay_Init();
-    TIM1_Init();
     USART_Printf_Init(1000000);
     u32 RST_CAUSE=0;
     RST_CAUSE=RCC->RSTSCKR;
     RCC->RSTSCKR|=(1<<24);//clear flag
     logd_b("RSTSCKR:%x\r\n",RST_CAUSE);
     logd_b("MODEL, VERSION:%s,V%x\n",DEFAULT_MODEL,SW_VERSION);
+    PD_Init();
+    TIM1_Init();
+    #if (USB_DEV_ENABLED)
+    usbd_init();
+    #endif
     gpad_board_init();
     gpad_init();
-    PD_Init();
 	// IWDG_Feed_Init( IWDG_Prescaler_32, 4000 );   // 2.7s IWDG reset
     while(1)
     {
         // IWDG_ReloadCounter();	//Feed dog
         gpad_handle();
+        #if (USB_DEV_ENABLED)
+        if(0 != m_gpad_mode){
+		    usbd_process();
+            // usb_otg_process();
+        }
+        #endif
         /* Get the calculated timing interval value */
         TIM_ITConfig( TIM1, TIM_IT_Update , DISABLE );
         Tmr_Ms_Dlt = Tim_Ms_Cnt - Tmr_Ms_Cnt_Last;
