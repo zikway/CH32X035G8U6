@@ -163,6 +163,32 @@ ________________________________________________________________________________
             uint8_t light;\
         }
     #endif
+     #if K002
+        #define USER_DEBUG_PIN              PB_10
+        #define UART_BOARDATE               1000000
+
+        #define TR_UART2_TX_PIN             PA_02
+        #define TR_UART2_RX_PIN             PA_03
+
+        #define TR_UART_TX_PIN              PC_18                           
+        #define TR_UART_RX_PIN              PC_19
+
+        #define HW_ADC_MAP_NUM  2
+        //手機電源VBUS
+        //充電器電源VIN,
+        #define HW_ADC_MAP      {\
+            {PA_05, 0UL, 5},\
+            {PA_04, 0UL, 4},\
+            }
+    #endif
+    #if K002_A
+        #define USER_DEBUG_PIN              PB_10
+        #define UART_BOARDATE               1000000
+
+        #define TR_UART_TX_PIN             PC_18
+        #define TR_UART_RX_PIN             PC_19
+
+    #endif
 
     #ifndef STORE_STRUCT_DEF
     #define     STORE_STRUCT_DEF    {\

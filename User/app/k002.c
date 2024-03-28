@@ -18,7 +18,7 @@
 #include "app_rgb.h"
 #include "app_command.h"
 #include "hw_adc.h"
-
+#include "PD_Process.h"
 #include "debug.h"
 #include "RGB1W.h"
 #include "app_command.h"
@@ -34,9 +34,8 @@
 #define DISCHARGE(en)               hw_gpio_output(DISCHARGE_PIN, en)
 
 #define CUSTOM_CMD_CHGEAR    0XF3
-//extern bool charger_evt;
+extern uint8_t PDO_IND;
 FIRFilter  filter[1]; //左扳机，右扳机
-
 
 void vbus_on(void)
 {
@@ -70,7 +69,11 @@ bool charger_in(void){
         //小米充电头，插入后，会有一个短时间的低电平，此时不认为是充电器插入
         t = mSysTick;
     }
-    if((mSysTick -t > 1000 || mSysTick < 500) && m_adc_data[CHARGER] > 1010)
+    if( !charger_flag && m_adc_data[CHARGER] > 1000 && mSysTick < 100){
+        charger_flag = true;
+        ret = true;
+    }
+    if((mSysTick -t > 1000 || mSysTick < 500) && m_adc_data[CHARGER] > 1000)
     {
          logi("m_adc_data[CHARGER] = %d\n",m_adc_data[CHARGER]);
           ret = true;
@@ -153,8 +156,8 @@ bool zkm_vendor_device_decode(tTrp_handle* cmd_tr,uint8_t *pDat,uint16_t len)
     switch (pDat[2]){
 
     case CUSTOM_CMD_CHGEAR:
-        //cfg wakeup pin
-     //   charger_evt = true;
+        PDO_IND = pDat[3];
+        logd("PDO_IND  = %d\r\n",PDO_IND);
         ret = true;
         break;
     }

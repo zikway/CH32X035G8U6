@@ -50,7 +50,7 @@ ________________________________________________________________________________
     //-------------------------------------------------------
     #define GPAD_MODE_DEFAULT	    USB_CGP_MODE    //默认模式
     #define DEVICE_MODE_BIT_DEFAULT BIT(MODE_CGP)
-    #define SUB_MODE_DEFAULT        0xff            //默认未定义            
+    #define SUB_MODE_DEFAULT        0xff            //默认未定义
     //-------------------------------------------------------
     #if C2SL
         #define APP_RGB_ENABLED                     1
@@ -69,13 +69,15 @@ ________________________________________________________________________________
 
 #if PROJECT_CJ_GAMEPAD
     #define K001				                0			//CH32X035+JL
-    #define X108				                1			//CH32X035+JL
+    #define X108				                0			//CH32X035+JL
+    #define K002				                0			//CH32X035+JL
+    #define K002_A                              1
     #define ZKM_SLAVE_ENABLED                   1
     
     //-------------------------------------------------------
     #define GPAD_MODE_DEFAULT	    USB_CGP_MODE    //默认模式
     #define DEVICE_MODE_BIT_DEFAULT BIT(MODE_CGP)
-    #define SUB_MODE_DEFAULT        0xff            //默认未定义            
+    #define SUB_MODE_DEFAULT        0xff            //默认未定义
     //-------------------------------------------------------
     #if K001
         #define APP_KEY_ENABLED                     1
@@ -131,11 +133,37 @@ ________________________________________________________________________________
         #define PIOC_PC18
         #define	RGB1W_CYC_48M	                    58
         
-        #define MCU_DEV_UPGRADE_TYPE                MCU_UPGRADE_CHXXX
-        #define MCU_DEV_UPGRADE_TYPE                MCU_UPGRADE_CHXXX
+        // #define MCU_DEV_UPGRADE_TYPE                MCU_UPGRADE_CHXXX
+        // #define MCU_DEV_UPGRADE_TYPE                MCU_UPGRADE_CHXXX
 
         #define DEFAULT_MODEL						"ZJ-X108"
         #define DEFAULT_NAME			            "X108"
+        #define SW_VERSION                          0X01
+    #endif
+    #if K002
+        #define UART_CMD_MAX                        72
+        #define UART_LONG_CMD_MAX                   0x220
+        #define UART_RX_BUFF_LEN                    UART_LONG_CMD_MAX
+        #define ZKM_VERDOR_ENABLED                  1
+        
+        #define MCU_DEV_UPGRADE_TYPE                MCU_UPGRADE_CHXXX
+        #define MCU_DEV_UPGRADE_TYPE                MCU_UPGRADE_CHXXX
+
+        #define DEFAULT_MODEL						"ZJ-K002"
+        #define DEFAULT_NAME			            "K002"
+        #define SW_VERSION                          0X01
+    #endif
+     #if K002_A
+        #define UART_CMD_MAX                        72
+        #define UART_LONG_CMD_MAX                   0x220
+        #define UART_RX_BUFF_LEN                    UART_LONG_CMD_MAX
+        #define ZKM_VERDOR_ENABLED                  1
+        
+        // #define MCU_DEV_UPGRADE_TYPE                MCU_UPGRADE_CHXXX
+        // #define MCU_DEV_UPGRADE_TYPE                MCU_UPGRADE_CHXXX
+
+        #define DEFAULT_MODEL						"ZJ-K002_A"
+        #define DEFAULT_NAME			            "K002_A"
         #define SW_VERSION                          0X01
     #endif
 #endif

@@ -27,7 +27,7 @@ extern "C" {
 
 /* DEBUG UATR Definition */
 #ifndef DEBUG
-#define DEBUG   DEBUG_UART3
+#define DEBUG   DEBUG_UART1
 #endif
 
 void Delay_Init(void);

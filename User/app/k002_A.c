@@ -23,7 +23,8 @@
 #include "firfilter.h"
 #include "PD_Process.h"
 #define CUSTOM_CMD_CHGEAR    0XF3  
-extern bool charger_evt;
+extern bool request_idx;
+extern uint8_t idx;
 bool charger_in(void)
 {
     bool ret = false;
@@ -73,7 +74,7 @@ void hw_user_vender_init(void)
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-    GPIO_Init(GPIOC, &GPIO_InitStructure);
+    GPIO_Init(GPIOC, &GPIO_InitStructure); 
     AFIO->CTLR |= USBPD_IN_HVT | USBPD_PHY_V33;
     USBPD->CONFIG = PD_DMA_EN;
     USBPD->STATUS = BUF_ERR | IF_RX_BIT | IF_RX_BYTE | IF_RX_ACT | IF_RX_RESET | IF_TX_END;
@@ -87,6 +88,11 @@ void user_task_handle(void)
 {
     static timer_t ss;
     static bool cap = false;
+    if(request_idx){
+       app_send_command(&mTrp_uart, CUSTOM_CMD_CHGEAR, idx, 1);
+       logd_r("send scc\r\n");
+       request_idx = false;
+    }
     // if(!cap && mSysTick >5000){
     //     cap = true;
     //     PDO_Request(3);
